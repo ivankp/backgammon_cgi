@@ -1,0 +1,51 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+<title>Backgammon</title>
+<link rel="stylesheet" href="styles.css" type="text/css">
+<style>
+.bg_box { fill: #785630; }
+.bg_field { fill: #164623; }
+.point.black { fill: #da251d; }
+.point.white { fill: #dedcae; }
+.checker.black {
+  fill: black;
+  stroke: grey;
+  stroke-width: 0.5;
+}
+.checker.white {
+  fill: white;
+  stroke: grey;
+  stroke-width: 0.5;
+}
+.checker.ghost {
+  fill: grey;
+  fill-opacity: 0.6;
+  stroke: grey;
+  stroke-width: 0.5;
+  stroke-dasharray: 3,3;
+}
+.die.body {
+  fill: white;
+  stroke: black;
+  stroke-width: 0.5;
+}
+.die.pip {
+  fill: black;
+  stroke: none;
+}
+</style>
+<script src="jquery-3.3.1.min.js"></script>
+<script>
+  const init_pos_str = '4HPwATDgc/ABMA';
+  let dice = [5,6];
+</script>
+<script src="board.js" type="text/javascript"></script>
+</head>
+
+<body>
+
+<div id="board"></div>
+
+</body>
+</html>
