@@ -5,17 +5,6 @@ jQuery.prototype.svg = function(tag,attr) {
   return x;
 }
 
-// function split(str,marks) {
-//   let sub = [];
-//   if (!str) return sub;
-//   let pos = [];
-//   for (let i=0; i<marks.length; ++i)
-//     pos.push(str.indexOf(marks[i], i ? pos[i-1] : 0));
-//   for (let i=1; i<pos.length; ++i)
-//     sub.push(str.substring(pos[i-1]+marks[i-1].length,pos[i]));
-//   return sub;
-// }
-
 $(() => {
   const aspect = 7./6.;
   const board = $('#board').svg('svg',{ 'viewBox': '0 0 280 240' });
@@ -34,12 +23,12 @@ $(() => {
   // Draw board =====================================================
   const g0 = board.svg('g');
   g0.svg('rect',{
-    'class': 'bg_field',
+    'class': 'board field',
     'width': 260, 'height': 220,
     'x': 10, 'y': 10
   });
   g0.svg('path',{
-    'class': 'bg_box',
+    'class': 'board box',
     'd': 'M 0,0 0,240 280,240 280,0 0,0 z '+
          'm 10,10 120,0 0,220 -120,0 0,-220 z '+
          'm 140,0 120,0 0,220 -120,0 0,-220 z'
@@ -61,6 +50,8 @@ $(() => {
   g_hinge.svg('rect',{'height': 1,'width':4,'x':-2,'y':5,'fill':'#774b1f'});
   g_hinge.svg('rect',{'height': 1,'width':4,'x':-2,'y':4,'fill':'#b1875a'});
   g_hinge.clone().attr('transform','translate(140,200)').appendTo(g_fold);
+
+  const g_text = board.svg('g',{'class':'noselect'});
 
   // Draw points ====================================================
   const g_6 = g0.svg('g',{'transform':'translate(150,0)'});
@@ -91,41 +82,92 @@ $(() => {
       'class': 'checker '+cl,
       cx: (p<13 ? 280 : -220) + p*(p<13 ? -20 : 20) - (p>6 && p<19 ? 20 : 0),
       cy: 20 + (p<13 ? 200-n*19 : n*19),
-      r: 9.5
+      r: 9.5,
+      point: p
     });
+  }
+
+  function checker_click() {
+    const a = this.getAttribute('point');
+    const b1 = a-dice[0], b2 = 49-b1;
+    const nopp = pos[b2];
+    if (b1<1) {
+      alert('Bearing off not yet implemented');
+    } else if (nopp<2) {
+      const cs = g_checkers.find('.player[point='+a+']');
+      let c = cs[cs.length-1];
+      const cl = c.getAttribute('class').replace(/\bchecker /g,'');
+      c.remove();
+      --pos[a-1];
+      draw_checker(cl,b1,pos[b1-1]++).on('click',checker_click);
+      ++moved;
+      if (nopp==1) {
+        const cs = g_checkers.find(':not(.player)[point='+b1+']');
+        let c = cs[cs.length-1];
+        c.remove();
+        --pos[b2];
+      }
+    } else {
+      alert('Illegal move '+a.toString()+' to '+b1.toString());
+    }
+    console.log('moved: '+moved);
   }
 
   // set board ======================================================
   const pos_bin = atob(init_pos_str);
-  let pos = [0];
+  let pos;
 
   function set_board() {
-    for (let i=0; i<pos_bin.length; ++i) {
+    pos = [0];
+    loop_i: for (let i=0; i<pos_bin.length; ++i) {
       const c = pos_bin.charCodeAt(i);
       let mask = 1;
       for (let j=0; j<8; ++j) {
         if (c & mask) ++pos[pos.length-1];
+        else if (pos.length==50) break loop_i;
         else pos.push(0);
         mask = mask << 1;
       }
     }
 
-    let checker = null;
+    // let p; // swap
+    // for (let i=0; i<25; ++i) {
+    //   p = pos[i]
+    //   pos[i] = pos[i+25];
+    //   pos[i+25] = p;
+    // }
+
     for (let i=0; i<24; ++i) {
       for (let j=0; j<pos[i]; ++j)
-        checker = draw_checker('white',i+1,j);
-      if (checker) {
-        checker.addClass('top');
-        checker = null;
-      }
+        draw_checker((setup[3]==='w'?'white':'black')+' player',i+1,j)
+        .on('click',checker_click);
       for (let j=0; j<pos[i+25]; ++j)
-        checker = draw_checker('black',24-i,j);
-      if (checker) checker.addClass('top');
+        draw_checker((setup[3]==='w'?'black':'white'),24-i,j);
     }
+
+    // compute number borne off
+    pos.push(15);
+    pos.push(15);
+    for (let i=0; i<2; ++i)
+      for (let j=0; j<25; ++j)
+        pos[50+i] -= pos[j+(i?25:0)];
+
+    console.log(pos);
+    console.log(pos[50]);
+    console.log(pos[51]);
+
+    const g_bearoff = g_text.svg('g');
+    g_bearoff.svg('text',{'x':275,'y':50,'class':'bearoff'})
+      .text(pos[51]);
+    g_bearoff.svg('text',{'x':275,'y':190,'class':'bearoff player'})
+      .text(pos[50]);
+
+    moved = 0;
   }
   set_board();
 
   // Dice ===========================================================
+  const dice = [ parseInt(setup[0]), parseInt(setup[1]) ];
   const g_dice = board.svg('g');
   const die_pips = [
     [[8,8]],
@@ -143,7 +185,6 @@ $(() => {
     g.svg('rect',{ 'class': 'die body', width: 16, height: 16, rx: 3 });
     for (const pips of die_pips[x-1])
       g.svg('circle',{ 'class': 'die pip', cx: pips[0], cy: pips[1], r: 2 });
-    return g;
   }
   function draw_dice() {
     draw_die(dice[0],192);
@@ -151,63 +192,12 @@ $(() => {
   }
   draw_dice();
   g_dice.on('click',function() {
-    dice = [dice[1],dice[0]];
-    g_dice.children().remove();
+    dice.reverse();
+    g_dice.empty();
     draw_dice();
-    if (moved) set_board();
+    if (moved) {
+      g_checkers.empty();
+      set_board();
+    }
   });
-
-  // drag and drop ==================================================
-  // http://www.petercollingridge.co.uk/tutorials/svg/interactive/
-  // checker=null;
-  // let grab_pos=null;
-  // let point;
-  // function startDrag(evt) {
-  //   evt.preventDefault();
-  //   let classes = evt.target.classList;
-  //   if (classes.contains('checker') && classes.contains('top')) {
-  //     checker = evt.target;
-  //     checker_pos = [ checker.cx, checker.cy ];
-  //     grab_pos = [ evt.clientX, evt.clientY ];
-  //   }
-  // }
-  // function endDrag(evt) {
-  //   if (checker) {
-  //     // if (legalMove(checker)) {
-  //     //   console.log(point);
-  //     // }
-  //     checker = null;
-  //   }
-  // }
-  // function drag(evt) {
-  //   if (checker) {
-  //     evt.preventDefault();
-  //     var CTM = evt.target.getScreenCTM();
-  //     if (evt.touches) evt = evt.touches[0];
-  //     // let x = (evt.clientX - grab_pos[0])/CTM.a + checker_pos[0];
-  //     // let y = (evt.clientY - grab_pos[1])/CTM.d + checker_pos[1];
-  //     let x = (evt.clientX - grab_pos[0])/CTM.a;
-  //     let y = (evt.clientY - grab_pos[1])/CTM.d;
-  //     checker.setAttributeNS(null,'transform','translate('+x+','+y+')');
-  //     // point = Math.floor((x-10)/20);
-  //     // if (y<100) {
-  //     //   point += 20;
-  //     //   if (x<-30) point += 1;
-  //     //   else if (x<-10) point = 26;
-  //     // } else {
-  //     //   point = 4 - point;
-  //     //   if (x>-10) point += 1;
-  //     //   else if (x>-30) point = 27;
-  //     // }
-  //   }
-  // }
-  // board.on('mousedown',startDrag);
-  // board.on('mousemove', drag);
-  // board.on('mouseup', endDrag);
-  // board.on('mouseleave', endDrag);
-  // board.on('touchstart', startDrag);
-  // board.on('touchmove', drag);
-  // board.on('touchend', endDrag);
-  // board.on('touchleave', endDrag);
-  // board.on('touchcancel', endDrag);
 });

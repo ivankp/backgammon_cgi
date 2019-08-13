@@ -4,13 +4,13 @@
 <title>Backgammon</title>
 <link rel="stylesheet" href="styles.css" type="text/css">
 <style>
-.bg_box { fill: #785630; }
-.bg_field { fill: #164623; }
+.board.box { fill: #785630; }
+.board.field { fill: #164623; }
 .point.black { fill: #da251d; }
 .point.white { fill: #dedcae; }
 .checker.black {
   fill: black;
-  stroke: grey;
+  stroke: #555;
   stroke-width: 0.5;
 }
 .checker.white {
@@ -37,10 +37,16 @@
 </style>
 <script src="jquery-3.3.1.min.js"></script>
 <script>
-  const init_pos_str = '4HPwATDgc/ABMA';
-  let dice = [5,6];
+  const init_pos_str =
+    // '4HPwATDgc/ABMA';
+    // '4HMQpCrgc/ABMA';
+    // '4Bx8AAz4HHwADA';
+    // 'AAAAAFRVVVUAAA';
+    '0HPwARDwOfgAGA';
+    // 'AACAAAAAAgAAAA';
+  const setup = '11rb';
 </script>
-<script src="board.js" type="text/javascript"></script>
+<script src="backgammon.js" type="text/javascript"></script>
 </head>
 
 <body>
