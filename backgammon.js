@@ -75,6 +75,15 @@ $(() => {
   g_6.clone().attr('transform','rotate(180,135,10) translate(140,-220)')
     .appendTo(g0);
 
+  const g_point_nums = g_text.svg('g',{'class':'point_nums'});
+  for (const x of [[1,0,0],[7,-140,0],[13,-240,-230],[19,-100,-230]]) {
+    const g = g_point_nums.svg('g');
+    for (let i=0; i<6; ++i)
+      g.svg('text',{
+        x:260+i*(x[2]?20:-20), y:237, transform:'translate('+x[1]+','+x[2]+')'
+      }).text(i+x[0]);
+  }
+
   // Checkers =======================================================
   const g_checkers = board.svg('g');
   function draw_checker(cl,p,n) {
@@ -152,10 +161,6 @@ $(() => {
       for (let j=0; j<25; ++j)
         pos[50+i] -= pos[j+(i?25:0)];
 
-    console.log(pos);
-    console.log(pos[50]);
-    console.log(pos[51]);
-
     const g_bearoff = g_text.svg('g');
     g_bearoff.svg('text',{'x':275,'y':50,'class':'bearoff'})
       .text(pos[51]);
@@ -200,4 +205,20 @@ $(() => {
       set_board();
     }
   });
+
+  // Buttons ========================================================
+  const g_buttons = board.svg('g');
+
+  const g_submit = g_buttons.svg('g',{
+    id: 'submit', 'transform':'translate(100,100)'
+  });
+  g_submit.svg('circle',{
+    'class': 'submit circle',
+    cx: 26, cy: 26, r: 25
+  });
+  g_submit.svg('path',{
+    'class': 'submit check',
+    d: 'M14.1 27.2l7.1 7.2 16.7-16.8'
+  });
+
 });
