@@ -18,7 +18,7 @@ $(() => {
   $(window).resize(resize);
 
   // variables ======================================================
-  let moved = 0;
+  let moved = 0, nmoves = 0;
 
   // Draw board =====================================================
   const g0 = board.svg('g');
@@ -96,37 +96,70 @@ $(() => {
     });
   }
 
-  function checker_click() {
-    const a = this.getAttribute('point');
-    const b1 = a-dice[0], b2 = 49-b1;
-    const nopp = pos[b2];
-    if (b1<1) {
-      alert('Bearing off not yet implemented');
-    } else if (nopp<2) {
-      const cs = g_checkers.find('.player[point='+a+']');
-      let c = cs[cs.length-1];
-      const cl = c.getAttribute('class').replace(/\bchecker /g,'');
-      c.remove();
-      --pos[a-1];
-      draw_checker(cl,b1,pos[b1-1]++).on('click',checker_click);
-      ++moved;
-      if (nopp==1) {
-        const cs = g_checkers.find(':not(.player)[point='+b1+']');
-        let c = cs[cs.length-1];
-        c.remove();
-        --pos[b2];
-      }
-    } else {
-      alert('Illegal move '+a.toString()+' to '+b1.toString());
-    }
-    console.log('moved: '+moved);
+  // Dice ===========================================================
+  const dice = [ parseInt(setup[0]), parseInt(setup[1]) ];
+  const g_dice = board.svg('g');
+  const die_pips = [
+    [[8,8]],
+    [[5,11],[11,5]],
+    [[3,13],[8,8],[13,3]],
+    [[4,4],[4,12],[12,4],[12,12]],
+    [[4,4],[4,12],[12,4],[12,12],[8,8]],
+    [[4.5,13],[4.5,8],[4.5,3],[11.5,13],[11.5,8],[11.5,3]]
+  ];
+  function draw_die(x,pos) {
+    const g = g_dice.svg('g',{
+      'class': 'die',
+      'transform':'translate('+pos+',112)'
+    });
+    g.svg('rect',{ 'class': 'die body', width: 16, height: 16, rx: 3 });
+    for (const pips of die_pips[x-1])
+      g.svg('circle',{ 'class': 'die pip', cx: pips[0], cy: pips[1], r: 2 });
   }
+  function draw_dice() {
+    draw_die(dice[0],192);
+    draw_die(dice[1],212);
+  }
+  draw_dice();
+  g_dice.on('click',function() {
+    dice.reverse();
+    g_dice.empty();
+    draw_dice();
+    if (moved) {
+      set_board();
+    }
+  });
+
+  // Buttons ========================================================
+  const g_buttons = board.svg('g',{'class': 'noselect'});
+  function draw_button(text,attr={}) {
+    const g = g_buttons.svg('g',{
+      'class': 'button',
+      ...attr
+    });
+    const r = g.svg('rect');
+    const tbb = g.svg('text').text(text)[0].getBBox();
+    r.attr({
+      width: 1.15*tbb.width, height: 1.05*tbb.height,
+      x: -0.075*tbb.width, y: -0.85*tbb.height, rx: 1.5
+    });
+    return g;
+  }
+  const submit_button = draw_button('Submit',{
+    transform: 'translate(157,123)', visibility: 'hidden'
+  }).on('click',function(){
+    alert('Sumbitting not yet implemented');
+  });
+  const cancel_button = draw_button('Cancel',{
+    transform: 'translate(240,123)', visibility: 'hidden'
+  }).on('click',set_board);
 
   // set board ======================================================
   const pos_bin = atob(init_pos_str);
   let pos;
 
   function set_board() {
+    g_checkers.empty();
     pos = [0];
     loop_i: for (let i=0; i<pos_bin.length; ++i) {
       const c = pos_bin.charCodeAt(i);
@@ -168,57 +201,44 @@ $(() => {
       .text(pos[50]);
 
     moved = 0;
+    nmoves = 2; // TODO: calculate
+
+    submit_button.attr('visibility','hidden');
+    cancel_button.attr('visibility','hidden');
   }
   set_board();
 
-  // Dice ===========================================================
-  const dice = [ parseInt(setup[0]), parseInt(setup[1]) ];
-  const g_dice = board.svg('g');
-  const die_pips = [
-    [[8,8]],
-    [[5,11],[11,5]],
-    [[3,13],[8,8],[13,3]],
-    [[4,4],[4,12],[12,4],[12,12]],
-    [[4,4],[4,12],[12,4],[12,12],[8,8]],
-    [[4.5,13],[4.5,8],[4.5,3],[11.5,13],[11.5,8],[11.5,3]]
-  ];
-  function draw_die(x,pos) {
-    const g = g_dice.svg('g',{
-      'class': 'die',
-      'transform':'translate('+pos+',112)'
-    });
-    g.svg('rect',{ 'class': 'die body', width: 16, height: 16, rx: 3 });
-    for (const pips of die_pips[x-1])
-      g.svg('circle',{ 'class': 'die pip', cx: pips[0], cy: pips[1], r: 2 });
-  }
-  function draw_dice() {
-    draw_die(dice[0],192);
-    draw_die(dice[1],212);
-  }
-  draw_dice();
-  g_dice.on('click',function() {
-    dice.reverse();
-    g_dice.empty();
-    draw_dice();
-    if (moved) {
-      g_checkers.empty();
-      set_board();
+  // Checker action =================================================
+  function checker_click() {
+    if (moved >= nmoves) return;
+    const a = this.getAttribute('point');
+    const b1 = a-dice[0], b2 = 49-b1;
+    const nopp = pos[b2];
+    if (b1<1) {
+      alert('Bearing off not yet implemented');
+    } else if (nopp<2) {
+      const cs = g_checkers.find('.player[point='+a+']');
+      let c = cs[cs.length-1];
+      const cl = c.getAttribute('class').replace(/\bchecker /g,'');
+      c.remove();
+      --pos[a-1];
+      draw_checker(cl,b1,pos[b1-1]++).on('click',checker_click);
+      ++moved;
+      if (nopp==1) {
+        const cs = g_checkers.find(':not(.player)[point='+b1+']');
+        let c = cs[cs.length-1];
+        c.remove();
+        --pos[b2];
+      }
+    } else {
+      alert('Illegal move '+a.toString()+' to '+b1.toString());
     }
-  });
-
-  // Buttons ========================================================
-  const g_buttons = board.svg('g');
-
-  const g_submit = g_buttons.svg('g',{
-    id: 'submit', 'transform':'translate(100,100)'
-  });
-  g_submit.svg('circle',{
-    'class': 'submit circle',
-    cx: 26, cy: 26, r: 25
-  });
-  g_submit.svg('path',{
-    'class': 'submit check',
-    d: 'M14.1 27.2l7.1 7.2 16.7-16.8'
-  });
+    console.log('moved: '+moved);
+    if (moved) {
+      cancel_button.attr('visibility','visibile');
+      if (moved==nmoves)
+        submit_button.attr('visibility','visibile');
+    }
+  }
 
 });
