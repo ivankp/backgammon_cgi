@@ -5,6 +5,8 @@ jQuery.prototype.svg = function(tag,attr) {
   return x;
 }
 
+function last(xs) { return xs[xs.length-1]; }
+
 $(() => {
   const aspect = 7./6.;
   const board = $('#board').svg('svg',{ 'viewBox': '0 0 280 240' });
@@ -156,7 +158,7 @@ $(() => {
 
   // set board ======================================================
   const pos_bin = atob(init_pos_str);
-  let pos;
+  let pos, g_bearoff;
 
   function set_board() {
     g_checkers.empty();
@@ -194,7 +196,7 @@ $(() => {
       for (let j=0; j<25; ++j)
         pos[50+i] -= pos[j+(i?25:0)];
 
-    const g_bearoff = g_text.svg('g');
+    g_bearoff = g_text.svg('g');
     g_bearoff.svg('text',{'x':275,'y':50,'class':'bearoff'})
       .text(pos[51]);
     g_bearoff.svg('text',{'x':275,'y':190,'class':'bearoff player'})
@@ -209,25 +211,38 @@ $(() => {
   set_board();
 
   // Checker action =================================================
+  function top_checker_player(a) {
+    return last(g_checkers.find('.player[point='+a+']'));
+  }
+  function top_checker_not_player(a) {
+    return last(g_checkers.find(':not(.player)[point='+a+']'));
+  }
   function checker_click() {
     if (moved >= nmoves) return;
     const a = this.getAttribute('point');
     const b1 = a-dice[0], b2 = 49-b1;
     const nopp = pos[b2];
     if (b1<1) {
-      alert('Bearing off not yet implemented');
+      let outfield = 0;
+      for (let i=6; i<24; ++i) outfield += pos[i];
+      if (outfield>0) alert('Can\'t bear off yet. '
+        + outfield.toString() + ' checkers in the outfield.');
+      else {
+        top_checker_player(a).remove();
+        --pos[a-1];
+        g_bearoff.find('.bearoff.player').text(++pos[50]);
+        ++moved;
+      }
     } else if (nopp<2) {
-      const cs = g_checkers.find('.player[point='+a+']');
-      let c = cs[cs.length-1];
+      let c = top_checker_player(a);
+      console.log(c);
       const cl = c.getAttribute('class').replace(/\bchecker /g,'');
       c.remove();
       --pos[a-1];
       draw_checker(cl,b1,pos[b1-1]++).on('click',checker_click);
       ++moved;
       if (nopp==1) {
-        const cs = g_checkers.find(':not(.player)[point='+b1+']');
-        let c = cs[cs.length-1];
-        c.remove();
+        top_checker_not_player().remove();
         --pos[b2];
       }
     } else {
