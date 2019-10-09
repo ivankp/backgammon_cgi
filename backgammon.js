@@ -20,7 +20,7 @@ $(() => {
   $(window).resize(resize);
 
   // variables ======================================================
-  let moved = 0, nmoves = 0;
+  let nmoves = 0, moves;
 
   // Draw board =====================================================
   const g0 = board.svg('g');
@@ -141,7 +141,7 @@ $(() => {
     dice.reverse();
     g_dice.empty();
     draw_dice();
-    if (moved) {
+    if (moves.length) {
       set_board();
     }
   });
@@ -162,9 +162,9 @@ $(() => {
   const submit_button = draw_button('Submit',{
     transform: 'translate(157,123)', visibility: 'hidden'
   }).on('click',function(){
-    alert('Submitting not yet implemented');
+    alert(dice.join('')+moves.reduce((a,x) => a+(x<10?'0':'')+x.toString()));
   });
-  const cancel_button = draw_button('Cancel',{
+  const cancel_button = draw_button('Reset',{
     transform: 'translate(240,123)', visibility: 'hidden'
   }).on('click',set_board);
 
@@ -175,9 +175,8 @@ $(() => {
   function set_board() {
     g_checkers.empty();
     g_checkers.svg('g');
-    let n = 0, p = 0;
     borneoff = [15,15];
-    // this is backwards
+    let n = 0, p = 0;
     loop_i: for (let i=0; i<pos_bin.length; ++i) {
       const c = pos_bin.charCodeAt(i);
       let mask = 1;
@@ -203,7 +202,7 @@ $(() => {
     for (let i in borneoff) // show number borne off checkers
       g_bearoff.children()[i].textContent = borneoff[i];
 
-    moved = 0;
+    moves = [ ];
     nmoves = dice[0]!=dice[1] ? 2 : 4;
 
     submit_button.attr('visibility','hidden');
@@ -212,13 +211,20 @@ $(() => {
   set_board();
 
   // Checker action =================================================
-  function pop_checker(p) { p.find('.player').last().remove(); }
+  function pop_checker(p) {
+    p.find('.player').last().remove();
+    moves.push(p.index()+1);
+  }
   function checker_click() {
-    if (moved >= nmoves) return;
+    if (moves.length >= nmoves) return;
     const points = g_checkers.children();
     const pa = $(this).parent();
     const  a = pa.index();
-    const  b = a - dice[moved<2 ? moved : 0];
+    if (a!=24 && points.last().find('.player').length > 0) {
+      alert('Must come off the bar first');
+      return;
+    }
+    const  b = a - dice[moves.length<2 ? moves.length : 0];
     const pb = b<0 ? null : $(points[b]);
     const nopp = b<0 ? 0 : pb.find(':not(.player)').length;
     if (b<0) { // Bearoff
@@ -230,10 +236,7 @@ $(() => {
       else {
         pop_checker(pa);
         g_bearoff.children()[0].textContent = ++borneoff[0];
-        ++moved;
       }
-    } else if (a!=24 && points.last().find('.player').length > 0) {
-      alert('Must come off the bar first');
     } else if (nopp<2) { // In-board move
       if (nopp) {
         pb.empty();
@@ -241,13 +244,12 @@ $(() => {
       }
       pop_checker(pa);
       draw_checker(0,b);
-      ++moved;
     } else {
       alert('Illegal move '+(a+1).toString()+' to '+(b+1).toString());
     }
-    if (moved) {
+    if (moves.length) {
       cancel_button.attr('visibility','visibile');
-      if (moved==nmoves)
+      if (moves.length==nmoves)
         submit_button.attr('visibility','visibile');
     }
   }
