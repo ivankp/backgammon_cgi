@@ -92,17 +92,19 @@ $(() => {
   if (setup[2]=='b') [colors[0],colors[1]] = [colors[1],colors[0]];
   function draw_checker(c,p) {
     const gs = g_checkers.children();
-    const g = $(gs[p-1]);
-    const n = p!=25 ? g.children().length
+    const g = $(gs[p]);
+    const n = p!=24 ? g.children().length
                     : g.find('.'+colors[c]).length;
-    return g.svg('circle',{ 'class': colors[c], r: 9.5 }).attr(
-      p < 25 ? {
-        cx: (p<13 ? 280 : -220) + p*(p<13 ? -20 : 20) - (p>6 && p<19 ? 20 : 0),
-        cy: 20 + (p<13 ? 200-n*19 : n*19),
+    const checker = g.svg('circle',{ 'class': colors[c], r: 9.5 }).attr(
+      p < 24 ? {
+        cx: (p<12 ? 260 : -200) + p*(p<12 ? -20 : 20) - (5<p && p<18 ? 20 : 0),
+        cy: 20 + (p<12 ? 200-n*19 : n*19),
       } : {
         cx: 140,
         cy: (c ? 150+n*19 : 90-n*19),
       });
+    if (!c) checker.addClass('player').on('click',checker_click);
+    return checker;
   }
 
   // Bearoff ========================================================
@@ -168,18 +170,21 @@ $(() => {
 
   // set board ======================================================
   const pos_bin = atob(init_pos_str);
+  let borneoff;
 
   function set_board() {
     g_checkers.empty();
     g_checkers.svg('g');
-    let n = 0, p = 0, b = [15,15];
+    let n = 0, p = 0;
+    borneoff = [15,15];
+    // this is backwards
     loop_i: for (let i=0; i<pos_bin.length; ++i) {
       const c = pos_bin.charCodeAt(i);
       let mask = 1;
       for (let j=0; j<8; ++j) {
         if (c & mask) {
-          draw_checker(p,n+1);
-          --b[p];
+          const checker = draw_checker(p,n);
+          --borneoff[p];
         } else if (n==24) {
           if (p) break loop_i;
           else { p = 1-p; n = 47-n; }
@@ -195,32 +200,11 @@ $(() => {
         mask = mask << 1;
       }
     }
-    for (let i in b)
-      g_bearoff.children()[i].textContent = b[i];
-
-    /*
-    for (let i=0; i<24; ++i) {
-      for (let j=0; j<pos[i]; ++j)
-        draw_checker((setup[3]==='w'?'white':'black')+' player',i+1,j)
-        .on('click',checker_click);
-      for (let j=0; j<pos[i+25]; ++j)
-        draw_checker((setup[3]==='w'?'black':'white'),24-i,j);
-    }
-    */
-
-    // compute number borne off
-    /*
-    pos.push(15);
-    pos.push(15);
-    for (let i=0; i<2; ++i)
-      for (let j=0; j<25; ++j)
-        pos[50+i] -= pos[j+(i?25:0)];
-    set_bearoff(0);
-    set_bearoff(1);
-    */
+    for (let i in borneoff) // show number borne off checkers
+      g_bearoff.children()[i].textContent = borneoff[i];
 
     moved = 0;
-    nmoves = 2; // TODO: calculate
+    nmoves = dice[0]!=dice[1] ? 2 : 4;
 
     submit_button.attr('visibility','hidden');
     cancel_button.attr('visibility','hidden');
@@ -228,52 +212,44 @@ $(() => {
   set_board();
 
   // Checker action =================================================
-  /*
-  function top_checker_player(a) {
-    return last(g_checkers.find('.player[point='+a+']'));
-  }
-  function top_checker_not_player(a) {
-    return last(g_checkers.find(':not(.player)[point='+a+']'));
-  }
+  function pop_checker(p) { p.find('.player').last().remove(); }
   function checker_click() {
     if (moved >= nmoves) return;
-    const a = this.getAttribute('point');
-    const b1 = a-dice[0], b2 = 49-b1;
-    const nopp = pos[b2];
-    if (b1<1) {
+    const points = g_checkers.children();
+    const pa = $(this).parent();
+    const  a = pa.index();
+    const  b = a - dice[moved<2 ? moved : 0];
+    const pb = b<0 ? null : $(points[b]);
+    const nopp = b<0 ? 0 : pb.find(':not(.player)').length;
+    if (b<0) { // Bearoff
       let outfield = 0;
-      for (let i=6; i<24; ++i) outfield += pos[i];
+      for (let i=6; i<25; ++i)
+        outfield += $(points[i]).find('.player').length;
       if (outfield>0) alert('Can\'t bear off yet. '
         + outfield.toString() + ' checkers in the outfield.');
       else {
-        top_checker_player(a).remove();
-        --pos[a-1];
-        ++pos[50];
-        set_bearoff(0);
+        pop_checker(pa);
+        g_bearoff.children()[0].textContent = ++borneoff[0];
         ++moved;
       }
-    } else if (nopp<2) {
-      let c = top_checker_player(a);
-      console.log(c);
-      const cl = c.getAttribute('class').replace(/\bchecker /g,'');
-      c.remove();
-      --pos[a-1];
-      draw_checker(cl,b1,pos[b1-1]++).on('click',checker_click);
-      ++moved;
-      if (nopp==1) {
-        top_checker_not_player().remove();
-        --pos[b2];
+    } else if (a!=24 && points.last().find('.player').length > 0) {
+      alert('Must come off the bar first');
+    } else if (nopp<2) { // In-board move
+      if (nopp) {
+        pb.empty();
+        draw_checker(1,24);
       }
+      pop_checker(pa);
+      draw_checker(0,b);
+      ++moved;
     } else {
-      alert('Illegal move '+a.toString()+' to '+b1.toString());
+      alert('Illegal move '+(a+1).toString()+' to '+(b+1).toString());
     }
-    console.log('moved: '+moved);
     if (moved) {
       cancel_button.attr('visibility','visibile');
       if (moved==nmoves)
         submit_button.attr('visibility','visibile');
     }
   }
-  */
 
 });
