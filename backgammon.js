@@ -20,6 +20,7 @@ $(() => {
   $(window).resize(resize);
 
   // variables ======================================================
+  let pos;
   let moved = 0, nmoves = 0;
 
   // Draw board =====================================================
@@ -98,6 +99,14 @@ $(() => {
     });
   }
 
+  // Bearoff ========================================================
+  const g_bearoff = g_text.svg('g');
+  g_bearoff.svg('text',{'x':275,'y':190,'class':'bearoff player'});
+  g_bearoff.svg('text',{'x':275,'y':50,'class':'bearoff'});
+  function set_bearoff(p) {
+    g_bearoff.children()[p].textContent = pos[50+p];
+  }
+
   // Dice ===========================================================
   const dice = [ parseInt(setup[0]), parseInt(setup[1]) ];
   const g_dice = board.svg('g');
@@ -158,7 +167,6 @@ $(() => {
 
   // set board ======================================================
   const pos_bin = atob(init_pos_str);
-  let pos, g_bearoff;
 
   function set_board() {
     g_checkers.empty();
@@ -196,11 +204,8 @@ $(() => {
       for (let j=0; j<25; ++j)
         pos[50+i] -= pos[j+(i?25:0)];
 
-    g_bearoff = g_text.svg('g');
-    g_bearoff.svg('text',{'x':275,'y':50,'class':'bearoff'})
-      .text(pos[51]);
-    g_bearoff.svg('text',{'x':275,'y':190,'class':'bearoff player'})
-      .text(pos[50]);
+    set_bearoff(0);
+    set_bearoff(1);
 
     moved = 0;
     nmoves = 2; // TODO: calculate
@@ -230,7 +235,8 @@ $(() => {
       else {
         top_checker_player(a).remove();
         --pos[a-1];
-        g_bearoff.find('.bearoff.player').text(++pos[50]);
+        ++pos[50];
+        set_bearoff(0);
         ++moved;
       }
     } else if (nopp<2) {
