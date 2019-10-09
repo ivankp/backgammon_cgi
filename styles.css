@@ -1,10 +1,8 @@
 html { background: #fff; }
-body, div {
-  margin: 0; padding: 0; border: 0;
-}
+body, div { margin: 0; padding: 0; border: 0; }
 body {
   width: 100%;
-  /* overflow: hidden; */
+  overflow: hidden;
 }
 
 a { text-decoration: none; }
@@ -23,22 +21,14 @@ a:hover { text-decoration: underline; }
             user-select: none; /* Future */
 }
 
-.checkers .player {
-  cursor: pointer;
-}
-.dice {
-  cursor: pointer;
-}
-.button {
-  cursor: pointer;
-}
+text { font-family: sans-serif; }
+
+.checkers .player { cursor: pointer; }
+.dice { cursor: pointer; }
+.button { cursor: pointer; }
 .bearoff {
   font-size: 9px;
   text-anchor: middle;
 }
-.players text {
-  text-anchor: end;
-}
-text {
-  font-family: sans-serif;
-}
+.players text { text-anchor: end; }
+.pip text { text-anchor: middle; }

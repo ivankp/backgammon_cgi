@@ -18,7 +18,7 @@ $(() => {
   $(window).resize(resize);
 
   // variables ======================================================
-  let nmoves = 0, moves;
+  let nmoves, moves, borneoff;
 
   // Draw board =====================================================
   const g0 = board.svg('g');
@@ -86,13 +86,32 @@ $(() => {
 
   // Players ========================================================
   const g_players = board.svg('g',{'class':'players'});
-  g_players.svg('text',{x:125,y:114}).text(players[1]);
-  g_players.svg('text',{x:125,y:132}).text(players[0]);
+  g_players.svg('text',{x:125,y:114}).text(init.players[1]);
+  g_players.svg('text',{x:125,y:132}).text(init.players[0]);
+
+  // Pip count ======================================================
+  const g_pip = board.svg('g',{'class':'pip'});
+  g_pip.svg('text',{x:140,y:132});
+  g_pip.svg('text',{x:140,y:114});
+
+  function pip_count() {
+    const points = g_checkers.children();
+    const pip = [0,0];
+    for (let p of points) {
+      p = $(p);
+      const pi = p.index();
+      for (let c in colors)
+        pip[c] += ( (c==0 || pi==24) ? pi+1 : 24-pi )
+                * p.find('.'+colors[c]).length;
+    }
+    for (let i in pip)
+      g_pip.children()[i].textContent = pip[i];
+  }
 
   // Checkers =======================================================
   const g_checkers = board.svg('g',{'class':'checkers'});
   const colors = ['white','black'];
-  if (setup[2]=='b') [colors[0],colors[1]] = [colors[1],colors[0]];
+  if (init.state[2]=='b') [colors[0],colors[1]] = [colors[1],colors[0]];
   function draw_checker(c,p) {
     const gs = g_checkers.children();
     const g = $(gs[p]);
@@ -116,7 +135,7 @@ $(() => {
   g_bearoff.svg('text',{'x':275,'y':50,'class':'bearoff'});
 
   // Dice ===========================================================
-  const dice = [ parseInt(setup[0]), parseInt(setup[1]) ];
+  const dice = [ parseInt(init.state[0]), parseInt(init.state[1]) ];
   const g_dice = board.svg('g',{'class': 'dice'});
   const die_pips = [
     [[8,8]],
@@ -171,8 +190,7 @@ $(() => {
   }).on('click',set_board);
 
   // set board ======================================================
-  const pos_bin = atob(init_pos_str);
-  let borneoff;
+  const pos_bin = atob(init.pos);
 
   function set_board() {
     g_checkers.empty();
@@ -209,6 +227,8 @@ $(() => {
 
     submit_button.attr('visibility','hidden');
     cancel_button.attr('visibility','hidden');
+
+    pip_count();
   }
   set_board();
 
@@ -216,6 +236,7 @@ $(() => {
   function pop_checker(p) {
     p.find('.player').last().remove();
     moves.push(p.index()+1);
+    pip_count();
   }
   function checker_click() {
     if (moves.length >= nmoves) return;
@@ -244,8 +265,8 @@ $(() => {
         pb.empty();
         draw_checker(1,24);
       }
-      pop_checker(pa);
       draw_checker(0,b);
+      pop_checker(pa);
     } else {
       alert('Illegal move '+(a+1).toString()+' to '+(b+1).toString());
     }

@@ -1,0 +1,50 @@
+.board.box { fill: #785630; }
+.board.field { fill: #164623; }
+.point.black { fill: #da251d; }
+.point.white { fill: #dedcae; }
+.checkers .black {
+  fill: black;
+  stroke: #555;
+  stroke-width: 0.5;
+}
+.checkers .white {
+  fill: white;
+  stroke: grey;
+  stroke-width: 0.5;
+}
+.dice .body {
+  fill: white;
+  stroke: black;
+  stroke-width: 0.5;
+}
+.dice .pip {
+  fill: black;
+  stroke: none;
+}
+.point_nums {
+  font-size: 6px;
+  text-anchor: middle;
+  fill: gold;
+}
+.button > text {
+  font-size: 8px;
+}
+.button > rect {
+  fill: grey;
+  stroke: black;
+  stroke-width: 0.5;
+}
+.players text {
+  font-size: 10px;
+  fill: #8BB4C0;
+}
+.pip text {
+  font-family: monospace;
+  font-size: 7px;
+  fill: black;
+  /* paint-order: stroke; */
+  /* stroke: white; */
+  /* stroke-width: 0.5px; */
+  /* stroke-linecap: butt; */
+  /* stroke-linejoin: miter; */
+}
