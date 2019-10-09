@@ -26,7 +26,7 @@ a:hover { text-decoration: underline; }
 .checkers .player {
   cursor: pointer;
 }
-.die {
+.dice {
   cursor: pointer;
 }
 .button {

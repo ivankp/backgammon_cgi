@@ -5,8 +5,6 @@ jQuery.prototype.svg = function(tag,attr) {
   return x;
 }
 
-function last(xs) { return xs[xs.length-1]; }
-
 $(() => {
   const aspect = 7./6.;
   const board = $('#board').svg('svg',{ 'viewBox': '0 0 280 240' });
@@ -114,7 +112,7 @@ $(() => {
 
   // Dice ===========================================================
   const dice = [ parseInt(setup[0]), parseInt(setup[1]) ];
-  const g_dice = board.svg('g');
+  const g_dice = board.svg('g',{'class': 'dice'});
   const die_pips = [
     [[8,8]],
     [[5,11],[11,5]],
@@ -124,13 +122,10 @@ $(() => {
     [[4.5,13],[4.5,8],[4.5,3],[11.5,13],[11.5,8],[11.5,3]]
   ];
   function draw_die(x,pos) {
-    const g = g_dice.svg('g',{
-      'class': 'die',
-      'transform':'translate('+pos+',112)'
-    });
-    g.svg('rect',{ 'class': 'die body', width: 16, height: 16, rx: 3 });
+    const g = g_dice.svg('g',{ 'transform':'translate('+pos+',112)' });
+    g.svg('rect',{ 'class': 'body', width: 16, height: 16, rx: 3 });
     for (const pips of die_pips[x-1])
-      g.svg('circle',{ 'class': 'die pip', cx: pips[0], cy: pips[1], r: 2 });
+      g.svg('circle',{ 'class': 'pip', cx: pips[0], cy: pips[1], r: 2 });
   }
   function draw_dice() {
     draw_die(dice[0],192);
@@ -138,9 +133,11 @@ $(() => {
   }
   draw_dice();
   g_dice.on('click',function() {
-    dice.reverse();
-    g_dice.empty();
-    draw_dice();
+    if (dice[0]!=dice[1]) {
+      dice.reverse();
+      g_dice.empty();
+      draw_dice();
+    }
     if (moves.length) {
       set_board();
     }
