@@ -84,6 +84,11 @@ $(() => {
       }).text(i+x[0]);
   }
 
+  // Players ========================================================
+  const g_players = board.svg('g',{'class':'players'});
+  g_players.svg('text',{x:125,y:114}).text(players[1]);
+  g_players.svg('text',{x:125,y:132}).text(players[0]);
+
   // Checkers =======================================================
   const g_checkers = board.svg('g',{'class':'checkers'});
   const colors = ['white','black'];

@@ -36,3 +36,9 @@ a:hover { text-decoration: underline; }
   font-size: 9px;
   text-anchor: middle;
 }
+.players text {
+  text-anchor: end;
+}
+text {
+  font-family: sans-serif;
+}
