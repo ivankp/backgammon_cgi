@@ -20,7 +20,6 @@ $(() => {
   $(window).resize(resize);
 
   // variables ======================================================
-  let pos;
   let moved = 0, nmoves = 0;
 
   // Draw board =====================================================
@@ -88,24 +87,28 @@ $(() => {
   }
 
   // Checkers =======================================================
-  const g_checkers = board.svg('g');
-  function draw_checker(cl,p,n) {
-    return g_checkers.svg('circle',{
-      'class': 'checker '+cl,
-      cx: (p<13 ? 280 : -220) + p*(p<13 ? -20 : 20) - (p>6 && p<19 ? 20 : 0),
-      cy: 20 + (p<13 ? 200-n*19 : n*19),
-      r: 9.5,
-      point: p
-    });
+  const g_checkers = board.svg('g',{'class':'checkers'});
+  const colors = ['white','black'];
+  if (setup[2]=='b') [colors[0],colors[1]] = [colors[1],colors[0]];
+  function draw_checker(c,p) {
+    const gs = g_checkers.children();
+    const g = $(gs[p-1]);
+    const n = p!=25 ? g.children().length
+                    : g.find('.'+colors[c]).length;
+    return g.svg('circle',{ 'class': colors[c], r: 9.5 }).attr(
+      p < 25 ? {
+        cx: (p<13 ? 280 : -220) + p*(p<13 ? -20 : 20) - (p>6 && p<19 ? 20 : 0),
+        cy: 20 + (p<13 ? 200-n*19 : n*19),
+      } : {
+        cx: 140,
+        cy: (c ? 150+n*19 : 90-n*19),
+      });
   }
 
   // Bearoff ========================================================
   const g_bearoff = g_text.svg('g');
   g_bearoff.svg('text',{'x':275,'y':190,'class':'bearoff player'});
   g_bearoff.svg('text',{'x':275,'y':50,'class':'bearoff'});
-  function set_bearoff(p) {
-    g_bearoff.children()[p].textContent = pos[50+p];
-  }
 
   // Dice ===========================================================
   const dice = [ parseInt(setup[0]), parseInt(setup[1]) ];
@@ -143,11 +146,9 @@ $(() => {
 
   // Buttons ========================================================
   const g_buttons = board.svg('g',{'class': 'noselect'});
-  function draw_button(text,attr={}) {
-    const g = g_buttons.svg('g',{
-      'class': 'button',
-      ...attr
-    });
+  function draw_button(text,attr) {
+    const g = g_buttons.svg('g',{'class': 'button'});
+    if (attr) g.attr(attr);
     const r = g.svg('rect');
     const tbb = g.svg('text').text(text)[0].getBBox();
     r.attr({
@@ -159,7 +160,7 @@ $(() => {
   const submit_button = draw_button('Submit',{
     transform: 'translate(157,123)', visibility: 'hidden'
   }).on('click',function(){
-    alert('Sumbitting not yet implemented');
+    alert('Submitting not yet implemented');
   });
   const cancel_button = draw_button('Cancel',{
     transform: 'translate(240,123)', visibility: 'hidden'
@@ -170,25 +171,34 @@ $(() => {
 
   function set_board() {
     g_checkers.empty();
-    pos = [0];
+    g_checkers.svg('g');
+    let n = 0, p = 0, b = [15,15];
     loop_i: for (let i=0; i<pos_bin.length; ++i) {
       const c = pos_bin.charCodeAt(i);
       let mask = 1;
       for (let j=0; j<8; ++j) {
-        if (c & mask) ++pos[pos.length-1];
-        else if (pos.length==50) break loop_i;
-        else pos.push(0);
+        if (c & mask) {
+          draw_checker(p,n+1);
+          --b[p];
+        } else if (n==24) {
+          if (p) break loop_i;
+          else { p = 1-p; n = 47-n; }
+        } else {
+          if (!p) {
+            g_checkers.svg('g');
+            ++n;
+          } else {
+            if (!n) n = 24;
+            else --n;
+          }
+        }
         mask = mask << 1;
       }
     }
+    for (let i in b)
+      g_bearoff.children()[i].textContent = b[i];
 
-    // let p; // swap
-    // for (let i=0; i<25; ++i) {
-    //   p = pos[i]
-    //   pos[i] = pos[i+25];
-    //   pos[i+25] = p;
-    // }
-
+    /*
     for (let i=0; i<24; ++i) {
       for (let j=0; j<pos[i]; ++j)
         draw_checker((setup[3]==='w'?'white':'black')+' player',i+1,j)
@@ -196,16 +206,18 @@ $(() => {
       for (let j=0; j<pos[i+25]; ++j)
         draw_checker((setup[3]==='w'?'black':'white'),24-i,j);
     }
+    */
 
     // compute number borne off
+    /*
     pos.push(15);
     pos.push(15);
     for (let i=0; i<2; ++i)
       for (let j=0; j<25; ++j)
         pos[50+i] -= pos[j+(i?25:0)];
-
     set_bearoff(0);
     set_bearoff(1);
+    */
 
     moved = 0;
     nmoves = 2; // TODO: calculate
@@ -216,6 +228,7 @@ $(() => {
   set_board();
 
   // Checker action =================================================
+  /*
   function top_checker_player(a) {
     return last(g_checkers.find('.player[point='+a+']'));
   }
@@ -261,5 +274,6 @@ $(() => {
         submit_button.attr('visibility','visibile');
     }
   }
+  */
 
 });

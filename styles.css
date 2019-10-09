@@ -23,7 +23,7 @@ a:hover { text-decoration: underline; }
             user-select: none; /* Future */
 }
 
-.checker.player {
+.checkers .player {
   cursor: pointer;
 }
 .die {
