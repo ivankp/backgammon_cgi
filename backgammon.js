@@ -17,7 +17,7 @@ function board_setup(game) {
   const left_div = $('#left'), under_div = $('#under'), info_div = $('#info');
   let info_under = false;
   function resize() {
-    let w0 = $(window).width(), h0 = $(window).height()-32, w=w0, h=h0;
+    let w0 = $(window).width(), h0 = $(window).height()-32-5, w=w0, h=h0;
     if (w0/h0 < aspect) h = w / aspect;
     else                w = h * aspect;
     board.attr({ 'width': w, 'height': h });
@@ -132,11 +132,11 @@ function board_setup(game) {
     for (let p of points) {
       p = $(p);
       const pi = p.index();
-      for (let c=0; c<2; ++c)
-        pip[c] += ( (c==0 || pi==24) ? pi+1 : 24-pi )
-                * p.find('.'+colors[c]).length;
+      for (let i=0; i<2; ++i)
+        pip[i] += ( (i==0 || pi==24) ? pi+1 : 24-pi )
+                * p.find('.'+colors[i]).length;
     }
-    for (let i in pip)
+    for (let i=0; i<2; ++i)
       g_pip.children()[i].textContent = pip[i];
   }
 
@@ -249,7 +249,7 @@ function board_setup(game) {
         mask = mask << 1;
       }
     }
-    for (let i in borneoff) // show number borne off checkers
+    for (let i=0; i<2; ++i) // show number borne off checkers
       g_bearoff.children()[i].textContent = borneoff[i];
 
     moves = [ ];
