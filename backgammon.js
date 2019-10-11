@@ -1,3 +1,9 @@
+function load_game(gid) {
+  return $.getJSON('load_game.php',{'id':gid},function(data){
+    console.log(data);
+  });
+}
+
 jQuery.prototype.svg = function(tag,attr) {
   let x = $(document.createElementNS('http://www.w3.org/2000/svg',tag))
     .appendTo(this);
@@ -5,7 +11,7 @@ jQuery.prototype.svg = function(tag,attr) {
   return x;
 }
 
-$(() => {
+function board_setup(game) {
   const aspect = 7./6.;
   const board = $('#board').svg('svg',{ 'viewBox': '0 0 280 240' });
   function resize() {
@@ -86,8 +92,8 @@ $(() => {
 
   // Players ========================================================
   const g_players = board.svg('g',{'class':'players'});
-  g_players.svg('text',{x:125,y:114}).text(init.players[1]);
-  g_players.svg('text',{x:125,y:132}).text(init.players[0]);
+  g_players.svg('text',{x:125,y:114}).text(game.player2);
+  g_players.svg('text',{x:125,y:132}).text(game.player1);
 
   // Pip count ======================================================
   const g_pip = board.svg('g',{'class':'pip'});
@@ -111,7 +117,8 @@ $(() => {
   // Checkers =======================================================
   const g_checkers = board.svg('g',{'class':'checkers'});
   const colors = ['white','black'];
-  if (init.state[2]=='b') [colors[0],colors[1]] = [colors[1],colors[0]];
+  // if (game.state[2]=='b')
+    [colors[0],colors[1]] = [colors[1],colors[0]];
   function draw_checker(c,p) {
     const gs = g_checkers.children();
     const g = $(gs[p]);
@@ -135,7 +142,7 @@ $(() => {
   g_bearoff.svg('text',{'x':275,'y':50,'class':'bearoff'});
 
   // Dice ===========================================================
-  const dice = [ parseInt(init.state[0]), parseInt(init.state[1]) ];
+  const dice = Array.from(game.dice.toString()).map(Number);
   const g_dice = board.svg('g',{'class': 'dice'});
   const die_pips = [
     [[8,8]],
@@ -190,7 +197,7 @@ $(() => {
   }).on('click',set_board);
 
   // set board ======================================================
-  const pos_bin = atob(init.pos);
+  const pos_bin = atob(game.pos_current);
 
   function set_board() {
     g_checkers.empty();
@@ -277,4 +284,4 @@ $(() => {
     }
   }
 
-});
+};

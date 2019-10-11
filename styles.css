@@ -2,7 +2,7 @@ html { background: #fff; }
 body, div { margin: 0; padding: 0; border: 0; }
 body {
   width: 100%;
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 
 a { text-decoration: none; }

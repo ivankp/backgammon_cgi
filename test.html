@@ -5,9 +5,10 @@
 <link rel="stylesheet" href="styles.css" type="text/css">
 <link rel="stylesheet" href="styles/default.css" type="text/css">
 <script src="jquery-3.3.1.min.js"></script>
+<script src="backgammon.js" type="text/javascript"></script>
 <script>
-  const init = {
-    "pos":
+  $(() => { board_setup({
+    "pos_current":
       // "4HPwATDgc/ABMA",
       // "4HMQpCrgc/ABMA",
       // "4Bx8AAz4HHwADA",
@@ -17,11 +18,11 @@
       // "bPsAAAA+Bx8AAw",
       // "bHsAAATOwQfABg",
       "bHsAAATOwQdAAw",
-    "state": "54b",
-    "players": ["monads","josqvin"]
-  };
+    "dice": 54,
+    "player1": "monads",
+    "player2": "josqvin"
+  }); });
 </script>
-<script src="backgammon.js" type="text/javascript"></script>
 </head>
 
 <body>

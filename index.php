@@ -5,12 +5,15 @@ function sqlite($query) {
   return $out;
 }
 
-$username = get($_POST['username']);
-$login_success = false;
 if (isset($_POST['logout'])) { // logout
   setcookie('login', '', time()-3600);
   header('Location: .');
-} else if ($username) { // attempt login
+  exit;
+}
+
+$login_success = false;
+$username = get($_POST['username']);
+if ($username) { // attempt login
   $select_user = sqlite(
     "SELECT EXISTS(SELECT 1 FROM users WHERE username=\"$username\")");
   $login_success = '1' == $select_user[0];
@@ -24,6 +27,8 @@ if (isset($_POST['logout'])) { // logout
 <head>
 <title>Backgammon</title>
 <link rel="stylesheet" href="styles.css" type="text/css">
+<link rel="stylesheet" href="styles/default.css" type="text/css">
+<script src="jquery-3.3.1.min.js"></script>
 </head>
 <body>
 
@@ -75,6 +80,16 @@ if (isset($_POST['logout'])) { // logout
 <?php } else { ?>
 
 <p>Game <?php echo $_GET['g']; ?></p>
+
+<script src="backgammon.js" type="text/javascript"></script>
+<script>
+$(() => {
+  load_game(<?php echo $_GET['g']; ?>)
+  .done(game => { board_setup(game); });
+});
+</script>
+
+<div id="board"></div>
 
 <?php } ?>
 <?php } ?>
