@@ -8,9 +8,7 @@ body {
 a { text-decoration: none; }
 a:hover { text-decoration: underline; }
 
-#board {
-  text-align: center;
-}
+#board { text-align: center; }
 
 .noselect {
   -webkit-touch-callout: none; /* iOS Safari */
@@ -21,11 +19,9 @@ a:hover { text-decoration: underline; }
             user-select: none; /* Future */
 }
 
-text { font-family: sans-serif; }
+svg text { font-family: sans-serif; }
 
-.checkers .player { cursor: pointer; }
-.dice { cursor: pointer; }
-.button { cursor: pointer; }
+.active { cursor: pointer; }
 .bearoff {
   font-size: 9px;
   text-anchor: middle;

@@ -132,18 +132,18 @@ function board_setup(game) {
         cx: 140,
         cy: (c ? 150+n*19 : 90-n*19),
       });
-    if (!c) checker.addClass('player').on('click',checker_click);
+    if (!c) checker.addClass('player active').on('click',checker_click);
     return checker;
   }
 
   // Bearoff ========================================================
   const g_bearoff = g_text.svg('g');
-  g_bearoff.svg('text',{'x':275,'y':190,'class':'bearoff player'});
+  g_bearoff.svg('text',{'x':275,'y':190,'class':'bearoff'});
   g_bearoff.svg('text',{'x':275,'y':50,'class':'bearoff'});
 
   // Dice ===========================================================
   const dice = Array.from(game.dice.toString()).map(Number);
-  const g_dice = board.svg('g',{'class': 'dice'});
+  const g_dice = board.svg('g',{'class': 'dice active'});
   const die_pips = [
     [[8,8]],
     [[5,11],[11,5]],
@@ -177,7 +177,7 @@ function board_setup(game) {
   // Buttons ========================================================
   const g_buttons = board.svg('g',{'class': 'noselect'});
   function draw_button(text,attr) {
-    const g = g_buttons.svg('g',{'class': 'button'});
+    const g = g_buttons.svg('g',{'class': 'button active'});
     if (attr) g.attr(attr);
     const r = g.svg('rect');
     const tbb = g.svg('text').text(text)[0].getBBox();
