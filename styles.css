@@ -8,6 +8,74 @@ body {
 a { text-decoration: none; }
 a:hover { text-decoration: underline; }
 
+/* Navigation panel =============================================== */
+#nav {
+  height: 40px;
+  width: 100%;
+}
+#nav a, #nav p, #nav .nav-item {
+  color: #333;
+  background-color: inherit;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 32px;
+  font-family: "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  margin: 0;
+  border: 0;
+  padding: 0 15px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  cursor: pointer;
+}
+#nav ul li.current-menu-item {
+  background-color: #ddd;
+}
+#nav ul li:hover {
+  background-color: #888;
+}
+#nav ul, #nav ul li {
+  list-style: none;
+  position: relative;
+  float: left;
+  margin: 0;
+  padding: 0;
+}
+#nav ul ul {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #fff;
+  padding: 0;
+}
+#nav ul ul li {
+  float: none;
+  width: 150px;
+}
+#nav ul ul ul {
+  top: 0;
+  left: 100%;
+}
+#nav ul li:hover > ul {
+  display: block;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+
+/* Table of games ================================================ */
+table.games {
+  border: 1px solid #aaa;
+  margin-left: auto;
+  margin-right: auto;
+}
+table.games td {
+  text-align: center;
+  padding: 1px 4px;
+}
+table.games tr:nth-child(1) { background-color: #c2c2c2; }
+table.games tr:nth-child(even) { background-color: #f2f2f2; }
+
+/* Board ========================================================= */
 #board { text-align: center; }
 
 .noselect {
@@ -19,12 +87,12 @@ a:hover { text-decoration: underline; }
             user-select: none; /* Future */
 }
 
-svg text { font-family: sans-serif; }
+#board text { font-family: sans-serif; }
 
-.active { cursor: pointer; }
-.bearoff {
+#board .active { cursor: pointer; }
+#board .bearoff {
   font-size: 9px;
   text-anchor: middle;
 }
-.players text { text-anchor: end; }
-.pip text { text-anchor: middle; }
+#board .players text { text-anchor: end; }
+#board .pip text { text-anchor: middle; }

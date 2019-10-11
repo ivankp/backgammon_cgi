@@ -1,1 +1,2 @@
-INSERT INTO game_types (name,init) VALUES ("backgammon","4HPwATDgc/ABMA");
+INSERT INTO game_types (name,short,init)
+VALUES ("backgammon","bg","4HPwATDgc/ABMA");
