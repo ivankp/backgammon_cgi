@@ -190,7 +190,7 @@ function board_setup(game) {
   const submit_button = draw_button('Submit',{
     transform: 'translate(157,123)', visibility: 'hidden'
   }).on('click',function(){
-    alert(dice.join('')+moves.reduce((a,x) => a+(x<10?'0':'')+x.toString()));
+    alert(dice.join('')+moves.reduce((a,x) => a+(x<10?'0':'')+x,''));
   });
   const cancel_button = draw_button('Reset',{
     transform: 'translate(240,123)', visibility: 'hidden'
@@ -262,7 +262,7 @@ function board_setup(game) {
       for (let i=6; i<25; ++i)
         outfield += $(points[i]).find('.player').length;
       if (outfield>0) alert('Can\'t bear off yet. '
-        + outfield.toString() + ' checkers in the outfield.');
+        + outfield + ' checkers in the outfield.');
       else {
         pop_checker(pa);
         g_bearoff.children()[0].textContent = ++borneoff[0];
@@ -275,7 +275,7 @@ function board_setup(game) {
       draw_checker(0,b);
       pop_checker(pa);
     } else {
-      alert('Illegal move '+(a+1).toString()+' to '+(b+1).toString());
+      alert('Illegal move '+(a+1)+' to '+(b+1));
     }
     if (moves.length) {
       cancel_button.attr('visibility','visibile');
