@@ -8,9 +8,18 @@ body {
 a { text-decoration: none; }
 a:hover { text-decoration: underline; }
 
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer, Edge */
+            user-select: none; /* Future */
+}
+
 /* Navigation panel =============================================== */
 #nav {
-  height: 40px;
+  height: 32px;
   width: 100%;
 }
 #nav a, #nav p, #nav .nav-item {
@@ -76,16 +85,9 @@ table.games tr:nth-child(1) { background-color: #c2c2c2; }
 table.games tr:nth-child(even) { background-color: #f2f2f2; }
 
 /* Board ========================================================= */
-#board { text-align: center; }
-
-.noselect {
-  -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-     -khtml-user-select: none; /* Konqueror HTML */
-       -moz-user-select: none; /* Firefox */
-        -ms-user-select: none; /* Internet Explorer, Edge */
-            user-select: none; /* Future */
-}
+#container { display: flex; }
+#board { flex-grow: 1; }
+/* #board { text-align: center; } */
 
 #board text { font-family: sans-serif; }
 
@@ -96,3 +98,11 @@ table.games tr:nth-child(even) { background-color: #f2f2f2; }
 }
 #board .players text { text-anchor: end; }
 #board .pip text { text-anchor: middle; }
+
+#info {
+  font-size: 14px;
+  font-family: sans-serif;
+}
+#info p {
+  margin: 4px 6px;
+}

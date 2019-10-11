@@ -14,17 +14,33 @@ jQuery.prototype.svg = function(tag,attr) {
 function board_setup(game) {
   const aspect = 7./6.;
   const board = $('#board').svg('svg',{ 'viewBox': '0 0 280 240' });
+  const left_div = $('#left'), under_div = $('#under'), info_div = $('#info');
+  let info_under = false;
   function resize() {
-    let w = $(window).width(), h = $(window).height();
-    if (w/h < aspect) h = w / aspect;
-    else              w = h * aspect;
+    let w0 = $(window).width(), h0 = $(window).height()-32, w=w0, h=h0;
+    if (w0/h0 < aspect) h = w / aspect;
+    else                w = h * aspect;
     board.attr({ 'width': w, 'height': h });
+
+    let dw = w0-w;
+    let lw = 0;
+    if (dw >= 300) lw = dw/2;
+    else if (dw >= 150) lw = dw;
+    left_div.css({'width': lw+'px'});
+    if (dw >= 150) {
+      if (info_under) {
+        info_div.appendTo(left_div);
+        info_under = false;
+      }
+    } else {
+      if (!info_under) {
+        info_div.appendTo(under_div);
+        info_under = true;
+      }
+    }
   }
   resize();
   $(window).resize(resize);
-
-  // variables ======================================================
-  let nmoves, moves, borneoff;
 
   // Draw board =====================================================
   const g0 = board.svg('g');
@@ -90,13 +106,23 @@ function board_setup(game) {
       }).text(i+x[0]);
   }
 
+  // Common =========================================================
+  let nmoves, moves, borneoff;
+
+  const colors = ['white','black'];
+  // if (game.state[2]=='b')
+    [colors[0],colors[1]] = [colors[1],colors[0]];
+
   // Players ========================================================
-  const g_players = board.svg('g',{'class':'players'});
+  const g_players = g_text.svg('g',{'class':'players'});
   g_players.svg('text',{x:125,y:114}).text(game.player2);
   g_players.svg('text',{x:125,y:132}).text(game.player1);
 
+  for (let i=0; i<2; ++i)
+    $('#'+colors[i]+'_player').text(game['player'+(i+1)]);
+
   // Pip count ======================================================
-  const g_pip = board.svg('g',{'class':'pip'});
+  const g_pip = g_text.svg('g',{'class':'pip'});
   g_pip.svg('text',{x:140,y:132});
   g_pip.svg('text',{x:140,y:114});
 
@@ -106,7 +132,7 @@ function board_setup(game) {
     for (let p of points) {
       p = $(p);
       const pi = p.index();
-      for (let c in colors)
+      for (let c=0; c<2; ++c)
         pip[c] += ( (c==0 || pi==24) ? pi+1 : 24-pi )
                 * p.find('.'+colors[c]).length;
     }
@@ -116,9 +142,6 @@ function board_setup(game) {
 
   // Checkers =======================================================
   const g_checkers = board.svg('g',{'class':'checkers'});
-  const colors = ['white','black'];
-  // if (game.state[2]=='b')
-    [colors[0],colors[1]] = [colors[1],colors[0]];
   function draw_checker(c,p) {
     const gs = g_checkers.children();
     const g = $(gs[p]);

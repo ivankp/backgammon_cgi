@@ -50,8 +50,6 @@ if ($username) { // attempt login
     include 'games.php';
   } else { /* Load a game */ ?>
 
-<p>Game <?php echo $_GET['g']; ?></p>
-
 <script src="backgammon.js" type="text/javascript"></script>
 <script>
 $(() => {
@@ -60,7 +58,19 @@ $(() => {
 });
 </script>
 
+<div id="container">
+<div id="left">
+
+<div id="info">
+<p>Game: <?php echo $_GET['g']; ?></p>
+<p>&#9675; <span id="white_player"></span></p>
+<p>&#9679; <span id="black_player"></span></p>
+</div>
+
+</div>
 <div id="board"></div>
+</div>
+<div id="under"></div>
 
 <?php } } ?>
 
