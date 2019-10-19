@@ -17,13 +17,13 @@ cur = db.cursor()
 cur.execute('''INSERT INTO games (
   player1, player2, game_type, turn, dice, cube
 ) SELECT
-  (SELECT id FROM users WHERE username = "%s"),
-  (SELECT id FROM users WHERE username = "%s"),
+  (SELECT id FROM users WHERE username = ?),
+  (SELECT id FROM users WHERE username = ?),
   (SELECT id FROM game_types WHERE name = "backgammon"),
-  %d,
-  %d,
+  ?,
+  ?,
   0
-''' % (sys.argv[2],sys.argv[3],turn,dice))
+''', (sys.argv[2],sys.argv[3],turn,dice))
 
 db.commit()
 db.close()

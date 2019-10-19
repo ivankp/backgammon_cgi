@@ -2,7 +2,8 @@ PRAGMA foreign_keys = ON;
 
 CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY,
-  username TEXT UNIQUE NOT NULL
+  username TEXT UNIQUE NOT NULL,
+  cookie TEXT UNIQUE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS game_types (

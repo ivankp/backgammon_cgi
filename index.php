@@ -3,22 +3,29 @@ function get($var, $default=null) { return isset($var) ? $var : $default; }
 $db = 'sqlite3 db/database.db ';
 $cookie_name = 'login';
 
+function redirect($addr='.') { header('Location: '.$addr); exit; }
+
 if (isset($_POST['logout'])) { // logout
   setcookie($cookie_name, '', time()-3600);
-  header('Location: .');
-  exit;
+  redirect();
 }
 
 $login_success = false;
 $cookie = get($_COOKIE[$cookie_name]);
-$username = get($_POST['username'],$cookie);
+$username = get($_POST['username']);
 if ($username) { // attempt login
-  $uid = exec($db."'SELECT id FROM users WHERE username=\"$username\"'");
+  list($uid, $expected_cookie) = explode('|',exec($db.
+    "'SELECT id, cookie FROM users WHERE username=\"$username\"'"));
   if (!empty($uid)) {
     $login_success = true;
-    if ($cookie != $username) // set login cookie
-      setcookie($cookie_name,$username);
+    if ($cookie != $expected_cookie) // set login cookie
+      setcookie($cookie_name,$expected_cookie);
   }
+} else if ($cookie) {
+  list($uid, $username) = explode('|',exec($db.
+    "'SELECT id, username FROM users WHERE cookie=\"$cookie\"'"));
+  if (!empty($uid)) $login_success = true;
+  else setcookie($cookie_name, '', time()-3600); // expire faulty cookie
 }
 
 if ($login_success) {
@@ -28,8 +35,7 @@ if ($login_success) {
       $g = exec($db.
         "'SELECT id FROM games WHERE finished!=1 AND".
         "(player1=$uid and turn=1) OR (player2=$uid and turn=2) LIMIT 1'");
-      header('Location: '.(is_numeric($g) ? "?g=$g" : '.'));
-      exit;
+      redirect(is_numeric($g) ? "?g=$g" : '.');
     }
   }
 }
