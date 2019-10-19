@@ -1,4 +1,4 @@
-html { background: #fff; }
+html { background: #f9f7c0; }
 body, div { margin: 0; padding: 0; border: 0; }
 body {
   width: 100%;
@@ -81,8 +81,8 @@ table.games td {
   text-align: center;
   padding: 1px 4px;
 }
-table.games tr:nth-child(1) { background-color: #c2c2c2; }
-table.games tr:nth-child(even) { background-color: #f2f2f2; }
+table.games tr:nth-child(1) { background: #c2c2c2; }
+table.games tr:nth-child(even) { background: #f7dc96; }
 
 /* Board ========================================================= */
 #container { display: flex; }

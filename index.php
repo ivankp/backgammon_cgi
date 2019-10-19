@@ -1,24 +1,36 @@
 <?php
 function get($var, $default=null) { return isset($var) ? $var : $default; }
-function sqlite($query) {
-  exec('sqlite3 db/database.db \''.$query.'\'',$out);
-  return $out;
-}
+$db = 'sqlite3 db/database.db ';
+$cookie_name = 'login';
 
 if (isset($_POST['logout'])) { // logout
-  setcookie('login', '', time()-3600);
+  setcookie($cookie_name, '', time()-3600);
   header('Location: .');
   exit;
 }
 
 $login_success = false;
-$username = get($_POST['username'],get($_COOKIE['login']));
+$cookie = get($_COOKIE[$cookie_name]);
+$username = get($_POST['username'],$cookie);
 if ($username) { // attempt login
-  $select_user = sqlite(
-    "SELECT EXISTS(SELECT 1 FROM users WHERE username=\"$username\")");
-  $login_success = '1' == $select_user[0];
-  if ($login_success) { // set login cookie
-    setcookie('login',$username);
+  $uid = exec($db."'SELECT id FROM users WHERE username=\"$username\"'");
+  if (!empty($uid)) {
+    $login_success = true;
+    if ($cookie != $username) // set login cookie
+      setcookie($cookie_name,$username);
+  }
+}
+
+if ($login_success) {
+  if (isset($_GET['g'])) { /* Load next game */
+    $g = $_GET['g'];
+    if (!is_numeric($g)) {
+      $g = exec($db.
+        "'SELECT id FROM games WHERE finished!=1 AND".
+        "(player1=$uid and turn=1) OR (player2=$uid and turn=2) LIMIT 1'");
+      header('Location: '.(is_numeric($g) ? "?g=$g" : '.'));
+      exit;
+    }
   }
 }
 ?>
@@ -46,14 +58,13 @@ if ($username) { // attempt login
 } else { /* Already logged in */
   include 'nav.php';
 
-  if (!isset($_GET['g'])) { /* List of games */
-    include 'games.php';
-  } else { /* Load a game */ ?>
+  if (isset($_GET['g'])) { /* Load a game */
+?>
 
 <script src="backgammon.js" type="text/javascript"></script>
 <script>
 $(() => {
-  load_game(<?php echo $_GET['g']; ?>)
+  load_game(<?php echo $g; ?>)
   .done(game => { board_setup(game); });
 });
 </script>
@@ -62,7 +73,7 @@ $(() => {
 <div id="left">
 
 <div id="info">
-<p>Game: <?php echo $_GET['g']; ?></p>
+<p>Game: <?php echo $g; ?></p>
 <p>&#9675; <span id="white_player"></span></p>
 <p>&#9679; <span id="black_player"></span></p>
 </div>
@@ -72,7 +83,9 @@ $(() => {
 </div>
 <div id="under"></div>
 
-<?php } } ?>
+<?php } else { /* List of games */
+  include 'games.php';
+} } ?>
 
 </body>
 </html>

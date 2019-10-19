@@ -4,7 +4,6 @@ import sys, sqlite3, json
 
 db = sqlite3.connect(sys.argv[1])
 cur = db.cursor()
-modified = False
 
 gid = sys.argv[2]
 resp = cur.execute('SELECT * FROM games WHERE id='+gid)
@@ -32,15 +31,6 @@ for pos in ['pos_init','pos_current']:
 
 game['game_type'] = lookup('game_types','name',tid)
 
-if game['dice'] is None:
-    import random
-    dice = random.randint(1,6)*10 + random.randint(1,6)
-    game['dice'] = dice
-    cur.execute('UPDATE games SET dice=? WHERE id=?',(dice,gid))
-    modified = True
-
 json.dump(game,sys.stdout,separators=(',',':'))
 
-if modified:
-    db.commit()
 db.close()
