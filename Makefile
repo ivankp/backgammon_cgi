@@ -3,7 +3,7 @@ CXX := g++
 CPPFLAGS := -std=c++14 -Iinclude
 CXXFLAGS := -Wall -O3 -flto -fmax-errors=3 $(CPPFLAGS)
 # CXXFLAGS := -Wall -g -fmax-errors=3 $(CPPFLAGS)
-LDFLAGS :=
+LDFLAGS := -Wl,-rpath=./lib
 LDLIBS :=
 
 BLD := .build
@@ -26,7 +26,7 @@ all: $(EXES)
 -include $(DEPS)
 
 # -------------------------------------------------------------------
-L_load_game := -lsqlite3
+L_table := -lsqlite3
 # -------------------------------------------------------------------
 
 $(DEPS): $(BLD)/%.d: src/%$(EXT)

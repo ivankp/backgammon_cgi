@@ -2,6 +2,8 @@
 #define IVANP_CAT_HH
 #ifndef IVANP_STRING_HH
 
+#include <sstream>
+
 namespace ivanp {
 
 template <typename... T>
