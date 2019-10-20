@@ -48,6 +48,9 @@ if ($login_success) {
 <link rel="stylesheet" href="styles.css" type="text/css">
 <?php if ($g) { ?>
 <link rel="stylesheet" href="styles/default.css" type="text/css">
+<style type="text/css" media="print">
+  #nav, #info, #under { display: none; }
+</style>
 <?php } ?>
 <script src="jquery-3.3.1.min.js"></script>
 <script src="shortcuts.js"></script>

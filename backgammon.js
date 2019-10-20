@@ -214,7 +214,7 @@ function board_setup(game) {
   const submit_button = draw_button('Submit',{
     transform: 'translate(157,123)', visibility: 'hidden'
   }).on('click',function(){
-    alert(dice.join('')+moves.reduce((a,x) => a+(x<10?'0':'')+x,''));
+    alert(dice.join('')+moves.reduce((a,x) => a+String.fromCharCode(x+64),''));
   });
   const cancel_button = draw_button('Reset',{
     transform: 'translate(240,123)', visibility: 'hidden'
