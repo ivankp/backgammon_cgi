@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
 
     if (first) first = false;
     else cout << ',';
-    cout<<'['<<id<<",\""<<opp<<"\",\""<<gt<<"\","<<myturn<<']';
+    cout<<'['<<(!myturn)<<','<<id<<",\""<<opp<<"\",\""<<gt<<"\"]";
   }
   cout << ']';
 }
