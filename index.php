@@ -46,7 +46,9 @@ if ($login_success) {
 <head>
 <title>Backgammon</title>
 <link rel="stylesheet" href="styles.css" type="text/css">
+<?php if ($g) { ?>
 <link rel="stylesheet" href="styles/default.css" type="text/css">
+<?php } ?>
 <script src="jquery-3.3.1.min.js"></script>
 <script src="shortcuts.js"></script>
 </head>

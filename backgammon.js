@@ -45,6 +45,7 @@ function board_setup(game) {
   $(window).resize(resize);
 
   // Draw board =====================================================
+  const defs = board.svg('defs');
   const g0 = board.svg('g');
   g0.svg('rect',{
     'class': 'board field',
@@ -78,7 +79,7 @@ function board_setup(game) {
   const g_text = board.svg('g',{'class':'noselect'});
 
   // Draw points ====================================================
-  const g_6 = g0.svg('g',{'transform':'translate(150,0)'});
+  const g_6 = defs.svg('symbol',{id:'quarter'}).svg('g');
   for (let i=0; i<3; ++i) {
     let g_trg1 = g_6.svg('path',{
       'class': 'point black',
@@ -92,12 +93,10 @@ function board_setup(game) {
       'transform': 'translate('+(20+i*40)+',10)'
     }).appendTo(g_6);
   }
-  g_6.clone().attr('transform','translate(10,0)')
-    .appendTo(g0);
-  g_6.clone().attr('transform','rotate(180,135,10) translate(0,-220)')
-    .appendTo(g0);
-  g_6.clone().attr('transform','rotate(180,135,10) translate(140,-220)')
-    .appendTo(g0);
+  g0.svg('use',{href:'#quarter',transform:'translate(150,0)'});
+  g0.svg('use',{href:'#quarter',transform:'translate(10,0)'});
+  g0.svg('use',{href:'#quarter',transform:'rotate(180,135,10) translate(0,-220)'});
+  g0.svg('use',{href:'#quarter',transform:'rotate(180,135,10) translate(140,-220)'});
 
   const g_point_nums = g_text.svg('g',{'class':'point_nums'});
   for (const x of [[1,0,0],[7,-140,0],[13,-240,-230],[19,-100,-230]]) {
