@@ -47,6 +47,7 @@ if ($login_success) {
 <link rel="stylesheet" href="styles.css" type="text/css">
 <link rel="stylesheet" href="styles/default.css" type="text/css">
 <script src="jquery-3.3.1.min.js"></script>
+<script src="shortcuts.js"></script>
 </head>
 <body>
 
