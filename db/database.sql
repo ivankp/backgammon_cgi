@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS game_types (
   id INTEGER PRIMARY KEY,
   name TEXT UNIQUE NOT NULL,
-  short TEXT NOT NULL,
+  short TEXT UNIQUE NOT NULL,
   init TEXT NOT NULL
 );
 
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS games (
   moves TEXT,
   dice INTEGER,
   turn INTEGER, -- 1 = player1, 2 = player2
-  finished INTEGER DEFAULT 0,
+  finished INTEGER, -- 1 = finished
   cube INTEGER DEFAULT 0, -- 0 = not in play
   mult INTEGER DEFAULT 1 -- gammon=2, backgammon=3
 );
