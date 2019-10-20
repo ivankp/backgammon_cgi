@@ -91,9 +91,24 @@ $(() => {
 </div>
 <div id="under"></div>
 
-<?php } else { /* List of games */
-  include 'games.php';
-} } ?>
+<?php } else { /* List of games */ ?>
+<script>
+  const games = <?php echo exec("./bin/table db/database.db $username 2>&1"); ?>;
+  games.sort();
+  function row() {
+    const tr = $('<tr>').appendTo('#games');
+    for (const x of arguments) $('<td>').appendTo(tr).html(x);
+  }
+  $(() => {
+    row('Turn','Opponent','Type');
+    for (const g of games) row(
+      '<a href="?g='+g[1]+'" class="'+(g[0]?'oppturn':'myturn')+'">'
+      +(g[0]?'Opp':'Yes')+'</a>', g[2], g[3]
+    );
+  });
+</script>
+<table id="games"></table>
+<?php } } ?>
 
 </body>
 </html>
