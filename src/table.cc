@@ -20,6 +20,8 @@ int main(int argc, char* argv[]) {
     " WHERE g.finished!=1 AND"
     " (p1.username = \"",username,"\" OR p2.username = \"",username,"\")"
   ));
+  bool first = true;
+  cout << '[';
   while (stmt.step()) {
     const int id = stmt.column_int(0);
     const char* p[] = { stmt.column_text(1), stmt.column_text(2) };
@@ -29,11 +31,9 @@ int main(int argc, char* argv[]) {
     const bool myturn = !strcmp(username,p[turn]);
     const char* opp = p[myturn ^ turn];
 
-    cout << id << '|'
-         // << p[0] << '|'
-         // << p[1] << '|'
-         << opp << '|'
-         << gt << '|'
-         << myturn << endl;
+    if (first) first = false;
+    else cout << ',';
+    cout<<'['<<id<<",\""<<opp<<"\",\""<<gt<<"\","<<myturn<<']';
   }
+  cout << ']';
 }
