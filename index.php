@@ -1,5 +1,6 @@
 <?php
 function get($var, $default=null) { return isset($var) ? $var : $default; }
+function sqlsplit($str) { return explode('|',$str); }
 $db = 'sqlite3 db/database.db ';
 $cookie_name = 'login';
 
@@ -14,7 +15,7 @@ $login_success = false;
 $cookie = get($_COOKIE[$cookie_name]);
 $username = get($_POST['username']);
 if ($username) { // attempt login
-  list($uid, $expected_cookie) = explode('|',exec($db.
+  list($uid, $expected_cookie) = sqlsplit(exec($db.
     "'SELECT id, cookie FROM users WHERE username=\"$username\"'"));
   if (!empty($uid)) {
     $login_success = true;
@@ -22,7 +23,7 @@ if ($username) { // attempt login
       setcookie($cookie_name,$expected_cookie);
   }
 } else if ($cookie) {
-  list($uid, $username) = explode('|',exec($db.
+  list($uid, $username) = sqlsplit(exec($db.
     "'SELECT id, username FROM users WHERE cookie=\"$cookie\"'"));
   if (!empty($uid)) $login_success = true;
   else setcookie($cookie_name, '', time()-3600); // expire faulty cookie

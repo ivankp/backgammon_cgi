@@ -12,6 +12,8 @@ jQuery.prototype.svg = function(tag,attr) {
 }
 
 function board_setup(game) {
+  document.title = 'G'+game.id+': '+game.player1+' vs '+game.player2;
+
   const aspect = 7./6.;
   const board = $('#board').svg('svg',{ 'viewBox': '0 0 280 240' });
   const left_div = $('#left'), under_div = $('#under'), info_div = $('#info');
