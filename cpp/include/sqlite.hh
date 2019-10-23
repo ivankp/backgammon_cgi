@@ -302,6 +302,9 @@ public:
       // SQLITE_INTEGER, SQLITE_FLOAT, SQLITE_TEXT, SQLITE_BLOB, or SQLITE_NULL
       return sqlite3_column_type(p, i);
     }
+    const char* column_name(int i) {
+      return sqlite3_column_name(p, i);
+    }
   };
 
   template <typename T>

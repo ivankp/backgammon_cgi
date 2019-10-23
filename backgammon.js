@@ -218,14 +218,17 @@ function board_setup(game) {
       dice.join('')
       + moves.reduce((a,x) => a+String.fromCharCode(x+64),'')
       + game.id
-    ).done(function(data){ alert(JSON.stringify(data)); });
+    ).done(function(data){
+      // alert(data);
+      alert(JSON.stringify(data));
+    });
   });
   const cancel_button = draw_button('Reset',{
     transform: 'translate(240,123)', visibility: 'hidden'
   }).on('click',set_board);
 
   // set board ======================================================
-  const pos_bin = atob(game.pos_current);
+  const pos_bin = atob(game.position);
 
   function set_board() {
     g_checkers.empty();

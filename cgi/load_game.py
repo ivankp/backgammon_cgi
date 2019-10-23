@@ -30,7 +30,7 @@ replace('player2','users','username')
 tid = str(game['game_type'])
 
 init = None
-for pos in ['pos_init','pos_current']:
+for pos in ['init','position']:
     if game[pos] is None:
         if init is None:
             init = lookup('game_types','init',tid)

@@ -19,8 +19,8 @@ CREATE TABLE IF NOT EXISTS games (
   player2 INTEGER REFERENCES users,
   game_type INTEGER REFERENCES game_types,
   match INTEGER REFERENCES matches,
-  pos_init TEXT, -- if null then same as type
-  pos_current TEXT,
+  init TEXT, -- if null then same as type
+  position TEXT,
   moves TEXT,
   dice INTEGER,
   turn INTEGER, -- 1 = player1, 2 = player2

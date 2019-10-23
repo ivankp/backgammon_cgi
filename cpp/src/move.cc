@@ -10,7 +10,7 @@
 using namespace std;
 using ivanp::cat;
 
-map<string,string> get_cookies() {
+auto get_cookies() {
   map<string,string> cookies_map;
   const char* str = getenv("HTTP_COOKIE");
   const char* end = str + strlen(str);
@@ -35,17 +35,27 @@ map<string,string> get_cookies() {
   return cookies_map;
 }
 
+auto sqlmap(ivanp::sqlite& db, const string& sql) {
+  map<string,ivanp::sqlite::value> m;
+  auto stmt = db.prepare(sql);
+  if (stmt.step()) {
+    const int n = stmt.column_count();
+    for (int i=0; i<n; ++i)
+      m[stmt.column_name(i)] = stmt.column_value(i);
+  }
+  return m;
+}
+
 int main() {
   // const char* lenstr = getenv("CONTENT_LENGTH");
   // const size_t len = lenstr==nullptr ? 0 : lexical_cast<size_t>(lenstr);
 
-  istreambuf_iterator<char> begin(cin), end;
-  const string post(begin, end);
+  cout << "Content-Type: application/json\r\n\r\n";
+  // cout << "Content-Type: text/plain\r\n\r\n";
+
+  const string post( istreambuf_iterator<char>(cin), { } );
 
   const auto cookies = get_cookies();
-
-  // cout << "Content-Type: application/json\r\n\r\n";
-  // cout << "[\"" << post <<"\",\"" << cookies.at("login") << "\"]";
 
   ivanp::sqlite db("../db/database.db");
 
@@ -64,17 +74,20 @@ int main() {
 
   size_t i = 2;
   for (; ; ++i) {
+    if (i>=post.size()) return 1;
     const char c = post[i];
     if (isdigit(c)) break;
-    else if (i>=post.size()) return 1;
     moves[i-2] = c - 0x40;
   }
 
   const char* gid = post.c_str() + i;
 
-  cout << "Content-Type: application/json\r\n\r\n";
-  cout << "{"
-    "\"user\":" << userid << ","
-    "\"dice\":" << dice[0] << dice[1] << ","
-    "\"gid\":" << gid << "}" << endl;
+  const auto game = sqlmap(db, cat("SELECT * FROM games WHERE id = ", gid));
+
+  cout
+    << "{\"user\":" << userid
+    << ",\"dice\":" << dice[0] << dice[1]
+    << ",\"gid\":" << gid
+    << ",\"turn\":" << game.at("turn").as_int()
+    << "}" << endl;
 }
