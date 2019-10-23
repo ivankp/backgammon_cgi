@@ -24,9 +24,9 @@ CREATE TABLE IF NOT EXISTS games (
   moves TEXT,
   dice INTEGER,
   turn INTEGER, -- 1 = player1, 2 = player2
-  finished INTEGER, -- 1 = finished
+  winner INTEGER, -- 1 = player1, 2 = player2
   cube INTEGER DEFAULT 0, -- 0 = not in play
-  mult INTEGER DEFAULT 1 -- gammon=2, backgammon=3
+  gammon INTEGER DEFAULT 1 -- gammon = 2, backgammon = 3
 );
 
 CREATE TABLE IF NOT EXISTS matches (

@@ -34,7 +34,7 @@ if ($login_success) {
     $g = $_GET['g'];
     if (!is_numeric($g)) {
       $g = exec($db.
-        "'SELECT id FROM games WHERE finished!=1 AND".
+        "'SELECT id FROM games WHERE winner IS NULL AND".
         "(player1=$uid and turn=1) OR (player2=$uid and turn=2) LIMIT 1'");
       redirect(is_numeric($g) ? "?g=$g" : '.');
     }
@@ -107,8 +107,8 @@ $(() => {
   $(() => {
     row('Turn','Opponent','Type');
     for (const g of games) row(
-      '<a href="?g='+g[1]+'" class="'+(g[0]?'oppturn':'myturn')+'">'
-      +(g[0]?'Opp':'Yes')+'</a>', g[2], g[3]
+      '<a href="?g='+g[3]+'" class="'+(g[0]?'oppturn':'myturn')+'">'
+      +(g[0]?'Opp':'Yes')+'</a>', g[1], g[2]
     );
   });
 </script>

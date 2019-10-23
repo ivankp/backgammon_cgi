@@ -17,7 +17,7 @@ int main(int argc, char* argv[]) {
     " JOIN users AS p1 ON g.player1 = p1.id"
     " JOIN users AS p2 ON g.player2 = p2.id"
     " JOIN game_types AS t ON g.game_type = t.id"
-    " WHERE g.finished!=1 AND"
+    " WHERE g.winner IS NULL AND"
     " (p1.username = \"",username,"\" OR p2.username = \"",username,"\")"
   ));
   bool first = true;
@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
 
     if (first) first = false;
     else cout << ',';
-    cout<<'['<<(!myturn)<<','<<id<<",\""<<opp<<"\",\""<<gt<<"\"]";
+    cout<<'['<<(!myturn)<<",\""<<opp<<"\",\""<<gt<<"\","<<id<<']';
   }
   cout << ']';
 }
