@@ -3,7 +3,7 @@ CXX := g++
 CPPFLAGS := -std=c++14 -Iinclude
 CXXFLAGS := -Wall -O3 -flto -fmax-errors=3 $(CPPFLAGS)
 # CXXFLAGS := -Wall -g -fmax-errors=3 $(CPPFLAGS)
-LDFLAGS := -Wl,-rpath=./lib
+LDFLAGS := # -Wl,-rpath=./lib
 LDLIBS :=
 
 BIN := ../cgi
@@ -14,13 +14,13 @@ VPATH = $(BLD)
 
 .PHONY: all clean
 
-ifeq (0, $(words $(findstring $(MAKECMDGOALS), clean)))
-
 SRCS := $(shell find -L src -type f -name '*$(EXT)')
 DEPS := $(patsubst src/%$(EXT),$(BLD)/%.d,$(SRCS))
 
 GREP_EXES := grep -rl '^ *int \+main *(' src --include='*$(EXT)'
 EXES := $(patsubst src%$(EXT),$(BIN)%, $(shell $(GREP_EXES)))
+
+ifeq (0, $(words $(findstring $(MAKECMDGOALS), clean)))
 
 all: $(EXES)
 
@@ -28,6 +28,7 @@ all: $(EXES)
 
 # -------------------------------------------------------------------
 L_table := -lsqlite3
+L_move := -lsqlite3
 # -------------------------------------------------------------------
 
 $(DEPS): $(BLD)/%.d: src/%$(EXT)
@@ -45,5 +46,5 @@ $(BIN)/%: $(BLD)/%.o
 endif
 
 clean:
-	@rm -rfv $(BLD) $(BIN)/*
+	@rm -rfv $(BLD) $(EXES)
 

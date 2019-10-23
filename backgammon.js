@@ -214,7 +214,11 @@ function board_setup(game) {
   const submit_button = draw_button('Submit',{
     transform: 'translate(157,123)', visibility: 'hidden'
   }).on('click',function(){
-    alert(dice.join('')+moves.reduce((a,x) => a+String.fromCharCode(x+64),''));
+    $.post('cgi/move',
+      dice.join('')
+      + moves.reduce((a,x) => a+String.fromCharCode(x+64),'')
+      + game.id
+    ).done(function(data){ alert(JSON.stringify(data)); });
   });
   const cancel_button = draw_button('Reset',{
     transform: 'translate(240,123)', visibility: 'hidden'
