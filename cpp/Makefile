@@ -6,6 +6,7 @@ CXXFLAGS := -Wall -O3 -flto -fmax-errors=3 $(CPPFLAGS)
 LDFLAGS := -Wl,-rpath=./lib
 LDLIBS :=
 
+BIN := ../cgi
 BLD := .build
 EXT := .cc
 
@@ -19,7 +20,7 @@ SRCS := $(shell find -L src -type f -name '*$(EXT)')
 DEPS := $(patsubst src/%$(EXT),$(BLD)/%.d,$(SRCS))
 
 GREP_EXES := grep -rl '^ *int \+main *(' src --include='*$(EXT)'
-EXES := $(patsubst src%$(EXT),bin%, $(shell $(GREP_EXES)))
+EXES := $(patsubst src%$(EXT),$(BIN)%, $(shell $(GREP_EXES)))
 
 all: $(EXES)
 
@@ -37,12 +38,12 @@ $(BLD)/%.o:
 	@mkdir -pv $(dir $@)
 	$(CXX) $(CXXFLAGS) $(C_$*) -c $(filter %$(EXT),$^) -o $@
 
-bin/%: $(BLD)/%.o
+$(BIN)/%: $(BLD)/%.o
 	@mkdir -pv $(dir $@)
 	$(CXX) $(LDFLAGS) $(filter %.o,$^) -o $@ $(LDLIBS) $(L_$*)
 
 endif
 
 clean:
-	@rm -rfv $(BLD) bin
+	@rm -rfv $(BLD) $(BIN)/*
 

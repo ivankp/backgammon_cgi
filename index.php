@@ -98,7 +98,7 @@ $(() => {
 
 <?php } else { /* List of games */ ?>
 <script>
-  const games = <?php echo exec("./bin/table db/database.db $username 2>&1"); ?>;
+  const games = <?php echo exec("cgi/table db/database.db $username 2>&1"); ?>;
   games.sort();
   function row() {
     const tr = $('<tr>').appendTo('#games');

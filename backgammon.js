@@ -1,5 +1,5 @@
 function load_game(gid) {
-  return $.getJSON('load_game.php',{'id':gid},function(data){
+  return $.getJSON('cgi/load_game.py',{'id':gid},function(data){
     console.log(data);
   });
 }

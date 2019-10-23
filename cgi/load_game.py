@@ -1,11 +1,18 @@
 #!/usr/bin/env python2
 
-import sys, sqlite3, json
+# print 'Content-Type: text/html'
+print 'Content-Type: application/json'
+print ''
 
-db = sqlite3.connect(sys.argv[1])
+import cgitb; cgitb.enable()
+
+import cgi, sqlite3, json
+
+db = sqlite3.connect('../db/database.db')
 cur = db.cursor()
 
-gid = sys.argv[2]
+get = cgi.FieldStorage()
+gid = get.getvalue('id')
 resp = cur.execute('SELECT * FROM games WHERE id='+gid)
 
 game = dict(zip( (x[0] for x in cur.description), resp.fetchone() ))
@@ -31,6 +38,6 @@ for pos in ['pos_init','pos_current']:
 
 game['game_type'] = lookup('game_types','name',tid)
 
-json.dump(game,sys.stdout,separators=(',',':'))
+print json.dumps(game,separators=(',',':'))
 
 db.close()
