@@ -3,10 +3,8 @@
 #include <iostream>
 #include <iomanip>
 #include <vector>
-#include <bitset>
+// #include <bitset>
 #include <string>
-
-using namespace std;
 
 // const pos_bin = atob(game.position);
 /*
@@ -60,13 +58,10 @@ const uint8_t decode_table[128] = {
   0x31, 0x32, 0x33, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
 };
 
-vector<char> decode(const char* ptr, size_t len) {
-  cout << (len) << endl;
+std::vector<char> decode(const char* ptr, size_t len) {
   const void* end = ptr + len;
   len *= 6;
-  cout << (len) << endl;
-  cout << (len%8) << endl;
-  vector<char> out(len/8 + !!(len%8));
+  std::vector<char> out(len/8 + !!(len%8));
   char* o = out.data();
   uint8_t step = 0;
   char byte;
@@ -103,17 +98,36 @@ vector<char> decode(const char* ptr, size_t len) {
   if (step) *(o++) = byte;
   return out;
 }
-vector<char> decode(const char* str) {
+std::vector<char> decode(const char* str) {
   return decode(str,strlen(str));
 }
-vector<char> decode(const std::string& str) {
+std::vector<char> decode(const std::string& str) {
   return decode(str.c_str(),str.size());
 }
 
+using namespace std;
+
 int main(int argc, char** argv) {
-  // cout << "test" << endl;
-  for (char c : decode(argv[1]))
-    for (int i=0; i<8; ++i)
-      cout << ((c >> i) & 1);
+  int board[25][2] = {0};
+
+  cout << argv[1] << endl;
+  int p = 0;
+  for (char c : decode(argv[1])) {
+    for (int i=0; i<8; ++i) {
+      const bool b = (c >> i) & 1;
+      cout << b;
+      if (b) ++board[p%25][p/25];
+      else ++p;
+    }
+  }
   cout << endl;
+
+  cout << '\n' << setfill(' ');
+  for (p=0; p<25; ++p) {
+    if (board[p][0] || board[p][1])
+      cout << setw(2) << (p+1) << ':'
+           << setw(3) << board[p][0]
+           << setw(3) << board[p][1] << endl;
+  }
+
 }
