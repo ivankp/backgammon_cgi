@@ -67,33 +67,13 @@ std::vector<char> decode(const char* ptr, size_t len) {
   char byte;
   for (uint8_t c, d; ptr!=end; ++ptr) {
     if ((c=*ptr)>>7 || (d=decode_table[c])==0xFF) break;
-    // cout << uppercase << setfill('0')
-    //   << hex << "0x" << setw(2) << (unsigned)c
-    //   << ' ' << bitset<6>(d) << endl;
-    switch (step++) {
-      case 0: {
-        byte = (d << 2);
-        break;
-      }
-      case 1: {
-        byte += (d >> 4);
-        *(o++) = byte;
-        byte = (d << 4);
-        break;
-      }
-      case 2: {
-        byte += (d >> 2);
-        *(o++) = byte;
-        byte = (d << 6);
-        break;
-      }
-      case 3: {
-        byte += d;
-        *(o++) = byte;
-        step = 0;
-        break;
-      }
+    step += 2;
+    if (step>2) {
+      byte += (d >> (8-step));
+      *(o++) = byte;
     }
+    if (step<8) byte = (d << step);
+    else step = 0;
   }
   if (step) *(o++) = byte;
   return out;
