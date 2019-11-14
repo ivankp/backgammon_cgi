@@ -46,6 +46,10 @@ auto sqlmap(ivanp::sqlite& db, const string& sql) {
   return m;
 }
 
+void assign(string& s, const char* ptr) {
+  if (ptr) s = ptr;
+}
+
 int main() {
   // const char* lenstr = getenv("CONTENT_LENGTH");
   // const size_t len = lenstr==nullptr ? 0 : lexical_cast<size_t>(lenstr);
@@ -54,6 +58,8 @@ int main() {
   // cout << "Content-Type: text/plain\r\n\r\n";
 
   const string post( istreambuf_iterator<char>(cin), { } );
+  // e.g. 13FH2
+  // dice: 1 3; moves: 1:6(F)->5, 3:8(H)->5; gid: 2
 
   const auto cookies = get_cookies();
 
@@ -84,10 +90,27 @@ int main() {
 
   const auto game = sqlmap(db, cat("SELECT * FROM games WHERE id = ", gid));
 
+  string pos1;
+  assign(pos1,game.at("position").as_text());
+  if (pos1.empty()) {
+    assign(pos1,game.at("init").as_text());
+    if (pos1.empty()) {
+      auto stmt = db.prepare(cat(
+        "SELECT init FROM game_types WHERE id = ",
+        game.at("game_type").as_int()
+      ));
+      if (stmt.step()) {
+        assign(pos1,stmt.column_text(0));
+      } else return 1;
+    }
+  }
+
   cout
     << "{\"user\":" << userid
+    << ",\"post\":\"" << post << "\""
     << ",\"dice\":" << dice[0] << dice[1]
     << ",\"gid\":" << gid
     << ",\"turn\":" << game.at("turn").as_int()
+    << ",\"pos1\":\"" << pos1 << "\""
     << "}" << endl;
 }
