@@ -16,9 +16,10 @@ using is_string_like = std::integral_constant<bool,
 template <typename S, typename T=void>
 using enable_for_strings = std::enable_if_t< is_string_like<S>::value, T >;
 
-const char* c_str(const char* s) noexcept { return s; }
+inline const char* c_str(const char* s) noexcept { return s; }
 template <typename T>
-enable_for_strings<T,const char*> c_str(const T& s) noexcept { return s.data(); }
+inline enable_for_strings<T,const char*>
+c_str(const T& s) noexcept { return s.data(); }
 }
 
 class sqlite {
@@ -152,6 +153,10 @@ public:
       }
     }
     bool operator!=(const value& o) const noexcept { return !((*this) == o); }
+
+    bool operator!() const noexcept {
+      return !p || type() == SQLITE_NULL;
+    }
   };
 
   class stmt {

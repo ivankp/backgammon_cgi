@@ -29,6 +29,13 @@ all: $(EXES)
 # -------------------------------------------------------------------
 L_table := -lsqlite3
 L_move := -lsqlite3
+L_load_game := -lsqlite3
+
+$(BIN)/move: \
+  $(BLD)/cgi.o
+
+$(BIN)/load_game: \
+  $(BLD)/cgi.o
 # -------------------------------------------------------------------
 
 $(DEPS): $(BLD)/%.d: src/%$(EXT)
