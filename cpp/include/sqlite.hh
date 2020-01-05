@@ -100,9 +100,9 @@ public:
     sqlite3_value* p;
   public:
     value(): p(nullptr) { }
-    value(sqlite3_value* p): p(sqlite3_value_dup(p)) { }
+    value(sqlite3_value* p) noexcept: p(sqlite3_value_dup(p)) { }
     ~value() { sqlite3_value_free(p); }
-    value(const value& o) noexcept: p(sqlite3_value_dup(o.p)) { }
+    value(const value& o) noexcept: value(o.p) { }
     value(value&& o) noexcept: p(o.p) { o.p = nullptr; }
     value& operator=(const value& o) noexcept {
       p = sqlite3_value_dup(o.p);

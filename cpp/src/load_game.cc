@@ -1,12 +1,28 @@
 #include <iostream>
 
 #include "cgi.hh"
+#include "encode.hh"
 
 #define TEST(var) \
   std::cout << "\033[36m" #var "\033[0m = " << var << std::endl;
 
 using namespace std;
 using ivanp::cat;
+
+uint8_t board[25][2] = {{0}};
+
+void flip(ivanp::sqlite::value& v) {
+  auto dec = base64_decode(v.as_text());
+  auto* pos = &dec[0];
+  position_decode(pos,board);
+
+  for (unsigned i=0; i<25; ++i) // swap black and white
+    swap(board[i][0],board[i][1]);
+
+  position_encode(board,pos);
+  const auto enc = base64_encode(pos,10);
+  memcpy(const_cast<void*>(v.as_blob()),enc.data(),enc.size());
+}
 
 int main() {
   cout << "Content-Type: application/json\r\n\r\n";
@@ -51,21 +67,15 @@ int main() {
   replace("player1","users","username");
   replace("player2","users","username");
 
-  auto flip = [](auto& pos){ };
-
   auto& game_type = game.at("game_type");
 
-  ivanp::sqlite::value init;
-  for (const string key : {"init","position"}) {
-    auto& pos = game.at(key);
-    if (!pos) {
-      if (!init) {
-        init = lookup("game_types","init",game_type.as_text());
-        if (need_flip) flip(init);
-      }
-      pos = init;
-    } else if (need_flip) flip(pos);
-  }
+  auto& init = game.at("init");
+  if (!init) init = lookup("game_types","init",game_type.as_text());
+  if (need_flip) flip(init);
+  auto& pos = game.at("position");
+  if (!pos) pos = init;
+  else if (need_flip) flip(pos);
+
   game_type = lookup("game_types","name",game_type.as_text());
 
   cout << "{";
@@ -84,6 +94,6 @@ int main() {
         cout << '\"' << x.second.as_text() << '\"';
     }
   }
-  cout << "}";
+  cout << "}\n";
 }
 
