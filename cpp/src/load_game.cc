@@ -83,11 +83,12 @@ int main() {
 
   game_type = lookup("game_types","name",get<int>(game_type));
 
-  cout << "{\"turn\":"
-    << ( pl_id[turn]==userid ? "true" : "false" )
-    << ",\"players\":["
-       "["<< pl_id[0] <<",\""<< pl_name[0] <<"\"],"
-       "["<< pl_id[1] <<",\""<< pl_name[1] <<"\"]]";
+  cout << "{\"turn\":";
+  if (pl_id[turn]==userid) cout << "\"user\"";
+  else cout << turn;
+  cout << ",\"players\":["
+    "["<< pl_id[0] <<",\""<< pl_name[0] <<"\"],"
+    "["<< pl_id[1] <<",\""<< pl_name[1] <<"\"]]";
   for (const auto& x : game) {
     for (const char* name : {"turn","init","player1","player2"})
       if (x.first == name) goto next;

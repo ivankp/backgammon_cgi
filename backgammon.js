@@ -110,10 +110,10 @@ function board_setup(game) {
 
   // Common =========================================================
   let nmoves, moves, borneoff;
-  const active = game.turn ? 'active' : '';
+  const active = game.turn=="user" ? 'active' : '';
 
   const colors = ['white','black'];
-  if (game.white==1) [colors[0],colors[1]] = [colors[1],colors[0]];
+  if (game.white!=0) [colors[0],colors[1]] = [colors[1],colors[0]];
 
   // Players ========================================================
   const g_players = g_text.svg('g',{'class':'players'});
@@ -181,7 +181,7 @@ function board_setup(game) {
     [[4.5,13],[4.5,8],[4.5,3],[11.5,13],[11.5,8],[11.5,3]]
   ];
   function draw_dice() {
-    [192,212].forEach((pos,i) => {
+    (game.turn!=1 ? [192,212] : [52,72]).forEach((pos,i) => {
       const g = g_dice.svg('g',{ 'transform':'translate('+pos+',112)' });
       g.svg('rect',{ 'class': 'body', width: 16, height: 16, rx: 3 });
       for (const pips of die_pips[dice[i]-1])
