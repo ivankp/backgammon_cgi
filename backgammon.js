@@ -110,6 +110,7 @@ function board_setup(game) {
 
   // Common =========================================================
   let nmoves, moves, borneoff;
+  const active = game.turn ? 'active' : '';
 
   const colors = ['white','black'];
   if (game.white==1) [colors[0],colors[1]] = [colors[1],colors[0]];
@@ -156,7 +157,10 @@ function board_setup(game) {
         cx: 140,
         cy: (c ? 150+n*19 : 90-n*19),
       });
-    if (!c) checker.addClass('player active').on('click',checker_click);
+    if (!c) {
+      checker.addClass('player '+active);
+      if (active) checker.on('click',checker_click);
+    }
     return checker;
   }
 
@@ -167,7 +171,7 @@ function board_setup(game) {
 
   // Dice ===========================================================
   const dice = Array.from(game.dice.toString()).map(Number);
-  const g_dice = board.svg('g',{'class': 'dice active'});
+  const g_dice = board.svg('g',{'class': 'dice '+active});
   const die_pips = [
     [[8,8]],
     [[5,11],[11,5]],
@@ -185,7 +189,7 @@ function board_setup(game) {
     });
   }
   draw_dice();
-  g_dice.on('click',function() {
+  if (active) g_dice.on('click',function() {
     if (dice[0]!=dice[1]) {
       dice.reverse();
       g_dice.empty();
@@ -199,7 +203,7 @@ function board_setup(game) {
   // Buttons ========================================================
   const g_buttons = board.svg('g',{'class': 'noselect'});
   function draw_button(text,attr) {
-    const g = g_buttons.svg('g',{'class': 'button active'});
+    const g = g_buttons.svg('g',{'class': 'button '+active});
     if (attr) g.attr(attr);
     const r = g.svg('rect');
     const tbb = g.svg('text').text(text)[0].getBBox();
@@ -211,7 +215,8 @@ function board_setup(game) {
   }
   const submit_button = draw_button('Submit',{
     transform: 'translate(157,123)', visibility: 'hidden'
-  }).on('click',function(){
+  });
+  if (active) submit_button.on('click',function(){
     $.post('cgi/move',
       dice.join('')
       + moves.reduce((a,x) => a+String.fromCharCode(x+64),'')
@@ -223,7 +228,8 @@ function board_setup(game) {
   });
   const cancel_button = draw_button('Reset',{
     transform: 'translate(240,123)', visibility: 'hidden'
-  }).on('click',set_board);
+  });
+  if (active) cancel_button.on('click',set_board);
 
   // set board ======================================================
   const pos_bin = atob(game.position);
