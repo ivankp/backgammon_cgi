@@ -1,6 +1,6 @@
 SHELL := bash
 CXX := g++
-CPPFLAGS := -std=c++14 -Iinclude
+CPPFLAGS := -std=c++17 -Iinclude
 CXXFLAGS := -Wall -O3 -flto -fmax-errors=3 $(CPPFLAGS)
 # CXXFLAGS := -Wall -g -fmax-errors=3 $(CPPFLAGS)
 LDFLAGS := # -Wl,-rpath=./lib
@@ -35,7 +35,11 @@ $(BIN)/move: \
   $(BLD)/cgi.o
 
 $(BIN)/load_game: \
-  $(BLD)/cgi.o
+  $(BLD)/cgi.o \
+  $(BLD)/encode.o
+
+$(BIN)/pos: \
+  $(BLD)/encode.o
 # -------------------------------------------------------------------
 
 $(DEPS): $(BLD)/%.d: src/%$(EXT)

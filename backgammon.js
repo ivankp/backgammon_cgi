@@ -12,7 +12,8 @@ jQuery.prototype.svg = function(tag,attr) {
 }
 
 function board_setup(game) {
-  document.title = 'G'+game.id+': '+game.player1+' vs '+game.player2;
+  document.title = 'G'+game.id+': '
+    + game.players[0][1]+' vs '+game.players[1][1];
 
   const aspect = 7./6.;
   const board = $('#board').svg('svg',{ 'viewBox': '0 0 280 240' });
@@ -111,16 +112,15 @@ function board_setup(game) {
   let nmoves, moves, borneoff;
 
   const colors = ['white','black'];
-  // if (game.state[2]=='b')
-    [colors[0],colors[1]] = [colors[1],colors[0]];
+  if (game.white==1) [colors[0],colors[1]] = [colors[1],colors[0]];
 
   // Players ========================================================
   const g_players = g_text.svg('g',{'class':'players'});
-  g_players.svg('text',{x:125,y:114}).text(game.player2);
-  g_players.svg('text',{x:125,y:132}).text(game.player1);
-
-  for (let i=0; i<2; ++i)
-    $('#'+colors[i]+'_player').text(game['player'+(i+1)]);
+  [{x:125,y:132},{x:125,y:114}].forEach((x,i) => {
+    const player_name = game.players[i][1];
+    g_players.svg('text',x).text(player_name);
+    $('#'+colors[i]+'_player').text(player_name);
+  });
 
   // Pip count ======================================================
   const g_pip = g_text.svg('g',{'class':'pip'});
@@ -163,7 +163,7 @@ function board_setup(game) {
   // Bearoff ========================================================
   const g_bearoff = g_text.svg('g');
   g_bearoff.svg('text',{'x':275,'y':190,'class':'bearoff'});
-  g_bearoff.svg('text',{'x':275,'y':50,'class':'bearoff'});
+  g_bearoff.svg('text',{'x':275,'y': 50,'class':'bearoff'});
 
   // Dice ===========================================================
   const dice = Array.from(game.dice.toString()).map(Number);
@@ -176,15 +176,13 @@ function board_setup(game) {
     [[4,4],[4,12],[12,4],[12,12],[8,8]],
     [[4.5,13],[4.5,8],[4.5,3],[11.5,13],[11.5,8],[11.5,3]]
   ];
-  function draw_die(x,pos) {
-    const g = g_dice.svg('g',{ 'transform':'translate('+pos+',112)' });
-    g.svg('rect',{ 'class': 'body', width: 16, height: 16, rx: 3 });
-    for (const pips of die_pips[x-1])
-      g.svg('circle',{ 'class': 'pip', cx: pips[0], cy: pips[1], r: 2 });
-  }
   function draw_dice() {
-    draw_die(dice[0],192);
-    draw_die(dice[1],212);
+    [192,212].forEach((pos,i) => {
+      const g = g_dice.svg('g',{ 'transform':'translate('+pos+',112)' });
+      g.svg('rect',{ 'class': 'body', width: 16, height: 16, rx: 3 });
+      for (const pips of die_pips[dice[i]-1])
+        g.svg('circle',{ 'class': 'pip', cx: pips[0], cy: pips[1], r: 2 });
+    });
   }
   draw_dice();
   g_dice.on('click',function() {

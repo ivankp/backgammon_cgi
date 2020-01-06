@@ -66,17 +66,6 @@ str_map get_cookies() {
   return m;
 }
 
-sql_map sqlmap(ivanp::sqlite& db, const string& sql) {
-  sql_map m;
-  auto stmt = db.prepare(sql);
-  if (stmt.step()) {
-    const int n = stmt.column_count();
-    for (int i=0; i<n; ++i)
-      m[stmt.column_name(i)] = stmt.column_value(i);
-  }
-  return m;
-}
-
 int cookie_login(ivanp::sqlite& db, const str_map& cookies) {
   auto stmt = db.prepare( cat(
     "SELECT id"

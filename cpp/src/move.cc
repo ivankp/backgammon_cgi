@@ -6,6 +6,17 @@
 using namespace std;
 using ivanp::cat;
 
+sql_map sqlmap(ivanp::sqlite& db, const string& sql) {
+  sql_map m;
+  auto stmt = db.prepare(sql);
+  if (stmt.step()) {
+    const int n = stmt.column_count();
+    for (int i=0; i<n; ++i)
+      m[stmt.column_name(i)] = stmt.column_value(i);
+  }
+  return m;
+}
+
 void assign(string& s, const char* ptr) {
   if (ptr) s = ptr;
 }

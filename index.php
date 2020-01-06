@@ -35,7 +35,7 @@ if ($login_success) {
     if (!is_numeric($g)) {
       $g = exec($db.
         "'SELECT id FROM games WHERE winner IS NULL AND".
-        "(player1=$uid and turn=1) OR (player2=$uid and turn=2) LIMIT 1'");
+        "(player1=$uid and turn=0) OR (player2=$uid and turn=1) LIMIT 1'");
       redirect(is_numeric($g) ? "?g=$g" : '.');
     }
   }

@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
     const int id = stmt.column_int(0);
     const char* p[] = { stmt.column_text(1), stmt.column_text(2) };
     const char* gt = stmt.column_text(3);
-    const int turn = stmt.column_int(4)-1;
+    const int turn = stmt.column_int(4);
 
     const bool myturn = !strcmp(username,p[turn]);
     const char* opp = p[myturn ^ turn];

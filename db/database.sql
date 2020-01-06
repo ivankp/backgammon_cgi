@@ -19,14 +19,15 @@ CREATE TABLE IF NOT EXISTS games (
   player2 INTEGER REFERENCES users,
   game_type INTEGER REFERENCES game_types,
   match INTEGER REFERENCES matches,
+  white INTEGER CHECK (white in (0,1)),
   init TEXT, -- if null then same as type
   position TEXT,
   moves TEXT,
   dice INTEGER,
-  turn INTEGER, -- 1 = player1, 2 = player2
-  winner INTEGER, -- 1 = player1, 2 = player2
-  cube INTEGER DEFAULT 0, -- 0 = not in play
-  gammon INTEGER DEFAULT 1 -- gammon = 2, backgammon = 3
+  turn INTEGER CHECK (turn in (0,1)),
+  winner INTEGER CHECK (winner in (NULL,0,1)),
+  cube INTEGER,
+  gammon INTEGER CHECK (gammon in (1,2,3))
 );
 
 CREATE TABLE IF NOT EXISTS matches (

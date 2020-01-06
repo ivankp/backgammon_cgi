@@ -1,7 +1,10 @@
 #include <iostream>
+#include <type_traits>
+#include <iterator>
 
 #include "cgi.hh"
 #include "encode.hh"
+// #include "streamer.hh"
 
 #define TEST(var) \
   std::cout << "\033[36m" #var "\033[0m = " << var << std::endl;
@@ -11,8 +14,8 @@ using ivanp::cat;
 
 uint8_t board[25][2] = {{0}};
 
-void flip(ivanp::sqlite::value& v) {
-  auto dec = base64_decode(v.as_text());
+void flip_pos(ivanp::sqlite::variant& v) {
+  auto dec = base64_decode(get<string>(v));
   auto* pos = &dec[0];
   position_decode(pos,board);
 
@@ -20,8 +23,7 @@ void flip(ivanp::sqlite::value& v) {
     swap(board[i][0],board[i][1]);
 
   position_encode(board,pos);
-  const auto enc = base64_encode(pos,10);
-  memcpy(const_cast<void*>(v.as_blob()),enc.data(),enc.size());
+  v = base64_encode(pos,10);
 }
 
 int main() {
@@ -29,19 +31,27 @@ int main() {
 
   ivanp::sqlite db("../db/database.db");
 
-  const auto cookies = get_cookies();
-  const int userid = cookie_login(db,cookies);
+  const int userid = cookie_login(db,get_cookies());
 
   const auto query = get_query();
 
-  auto game = sqlmap(db, cat(
-    "SELECT * FROM games WHERE id = ", query.at("id")));
+  auto game = db.query(cat(
+    "SELECT * FROM games WHERE id=", query.at("id")));
 
-  const int pl1 = game.at("player1").as_int();
-  const int pl2 = game.at("player2").as_int();
+  int& turn = get<int>(game.at("turn"));
+  int pl_id[2] = {
+    get<int>(game.at("player1")),
+    get<int>(game.at("player2"))
+  };
 
-  const bool need_flip =
-    pl2==userid || (pl1!=userid && game.at("turn").as_int()==2);
+  const bool flip = pl_id[1]==userid || (pl_id[0]!=userid && turn==1);
+
+  if (flip) {
+    swap(pl_id[0],pl_id[1]);
+    auto& white = get<int>(game.at("white"));
+    white = !white;
+    turn = !turn;
+  }
 
   auto lookup = [&](
     const auto& table,
@@ -51,48 +61,50 @@ int main() {
     auto stmt = db.prepare( cat(
       "SELECT ", field, " FROM ", table, " WHERE id=", value
     ));
-    if (!stmt.step()) throw runtime_error(cat("lookup failed for id=",value));
-    return stmt.column_value(0);
+    if (!stmt.step()) throw runtime_error(cat(
+      "lookup failed in table ",table," for id ",value ));
+    return stmt.column_value(0).as_variant();
   };
 
-  auto replace = [&](
-    const auto& game_field,
-    const auto& table,
-    const auto& field
-  ) -> decltype(auto) {
-    return game.at(game_field)
-      = lookup(table,field,game.at(game_field).as_text());
+  string pl_name[2] = {
+    get<string>(lookup("users","username",pl_id[0])),
+    get<string>(lookup("users","username",pl_id[1]))
   };
-
-  replace("player1","users","username");
-  replace("player2","users","username");
 
   auto& game_type = game.at("game_type");
 
   auto& init = game.at("init");
-  if (!init) init = lookup("game_types","init",game_type.as_text());
-  if (need_flip) flip(init);
+  if (!init.index())
+    init = lookup("game_types","init",get<int>(game_type));
+  if (flip) flip_pos(init);
   auto& pos = game.at("position");
-  if (!pos) pos = init;
-  else if (need_flip) flip(pos);
+  if (!pos.index()) pos = init;
+  else if (flip) flip_pos(pos);
 
-  game_type = lookup("game_types","name",game_type.as_text());
+  game_type = lookup("game_types","name",get<int>(game_type));
 
-  cout << "{";
-  bool first = true;
+  cout << "{\"turn\":"
+    << ( pl_id[turn]==userid ? "true" : "false" )
+    << ",\"players\":["
+       "["<< pl_id[0] <<",\""<< pl_name[0] <<"\"],"
+       "["<< pl_id[1] <<",\""<< pl_name[1] <<"\"]]";
   for (const auto& x : game) {
-    if (first) first = false;
-    else cout << ',';
-    cout << '\"' << x.first << "\":";
-    switch (x.second.type()) {
-      case SQLITE_INTEGER:
-      case SQLITE_FLOAT:
-        cout << x.second.as_text(); break;
-      case SQLITE_NULL:
-        cout << "null"; break;
-      default:
-        cout << '\"' << x.second.as_text() << '\"';
-    }
+    for (const char* name : {"turn","init","player1","player2"})
+      if (x.first == name) goto next;
+    cout << ",\"" << x.first << "\":";
+    visit([](auto&& x){
+      using type = decay_t<decltype(x)>;
+      if constexpr (is_null_pointer_v<type>) {
+        cout << "null";
+      } else if constexpr (is_arithmetic_v<type>) {
+        cout << x;
+      } else {
+        cout << '\"';
+        copy(x.begin(), x.end(), ostream_iterator<char>(cout));
+        cout << '\"';
+      }
+    }, x.second);
+    next: ;
   }
   cout << "}\n";
 }

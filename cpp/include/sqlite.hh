@@ -5,6 +5,19 @@
 #include <exception>
 #include <type_traits>
 #include <cstring>
+#include <vector>
+#include <map>
+
+#ifdef __has_include
+#  if __has_include(<variant>)
+#    include <variant>
+#    define IVANP_SQLITE_CPP_VARIANT
+#  elif __has_include(<boost/variant.hpp>)
+#    include <boost/variant.hpp>
+#  else
+#    error "No <variant> header"
+#  endif
+#endif
 
 namespace ivanp {
 
@@ -93,6 +106,14 @@ public:
   template <typename... T>
   sqlite& operator()(T&&... args) { return exec(std::forward<T>(args)...); }
 
+  using variant =
+#ifdef IVANP_SQLITE_CPP_VARIANT
+    std::variant
+#else
+    boost::variant
+#endif
+    < nullptr_t, int, double, std::string, std::vector<char> >;
+
   class stmt;
 
   class value {
@@ -120,6 +141,19 @@ public:
     const void* as_blob() const noexcept { return sqlite3_value_blob(p); }
     const char* as_text() const noexcept {
       return reinterpret_cast<const char*>(sqlite3_value_text(p));
+    }
+
+    variant as_variant() const noexcept {
+      switch (type()) {
+        case SQLITE_INTEGER: return as_int();
+        case SQLITE_FLOAT: return as_double();
+        case SQLITE_TEXT: return std::string(as_text());
+        case SQLITE_BLOB: {
+          auto a = static_cast<const char*>(as_blob()), b = a + bytes();
+          return std::vector<char>(a,b);
+        }
+        default: return nullptr;
+      }
     }
 
     bool operator==(const value& o) const noexcept {
@@ -314,6 +348,19 @@ public:
 
   template <typename T>
   stmt prepare(const T& sql) { return { db, detail::c_str(sql) }; }
+
+  using query_map = std::map<std::string,variant>;
+
+  query_map query(const std::string& sql) {
+    query_map m;
+    auto stmt = prepare(sql);
+    if (stmt.step()) {
+      const int n = stmt.column_count();
+      for (int i=0; i<n; ++i)
+        m[stmt.column_name(i)] = stmt.column_value(i).as_variant();
+    }
+    return m;
+  }
 
 };
 
